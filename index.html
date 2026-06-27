@@ -667,7 +667,10 @@ async function cargarDesaparecidos(query = '') {
     const {data, error} = await q;
     if(error) throw error;
     
-    document.getElementById('stat-desap').textContent = data.filter(d=>d.status==='buscado').length;
+    const sdEl = document.getElementById('stat-desap');
+    if(sdEl) sdEl.textContent = data.filter(d=>d.status==='buscado').length;
+    const ddEl = document.getElementById('dash-desap');
+    if(ddEl) ddEl.textContent = data.filter(d=>d.status==='buscado').length;
     
     if(!data.length){ el.innerHTML='<div class="empty">Sin resultados</div>'; return; }
     el.innerHTML = data.map(d=>`
