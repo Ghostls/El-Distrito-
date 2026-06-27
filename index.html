@@ -108,16 +108,16 @@ nav{
 .nav-logo-ed{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.12em;color:var(--gold)}
 
 .nav-alert{
-  display:flex;align-items:center;gap:4px;
+  display:flex;align-items:center;gap:3px;
   background:var(--red-d);border:1px solid var(--red-b);
   color:#fff;
   font-family:'Share Tech Mono',monospace;
-  font-size:10px;letter-spacing:0.06em;
-  padding:4px 8px;border-radius:6px;
+  font-size:8px;letter-spacing:0.04em;
+  padding:3px 6px;border-radius:5px;
   white-space:nowrap;grid-column:2;
 }
-@media(max-width:420px){.nav-alert{display:none}}
-.nav-alert-dot{width:5px;height:5px;background:#fff;border-radius:50%;animation:blink 1.4s infinite}
+@media(max-width:360px){.nav-alert .nav-alert-text{display:none}}
+.nav-alert-dot{width:4px;height:4px;background:#fff;border-radius:50%;animation:blink 1.4s infinite;flex-shrink:0}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
 
 .nav-tabs{
@@ -791,7 +791,7 @@ main{padding-top:64px;position:relative;z-index:1;min-height:100vh;min-height:10
 
   <div class="nav-alert">
     <span class="nav-alert-dot"></span>
-    EMERGENCIA ACTIVA
+    <span class="nav-alert-text">EMERGENCIA ACTIVA</span>
   </div>
 
   <div class="nav-tabs">
