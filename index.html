@@ -324,17 +324,12 @@ main{padding-top:56px;position:relative;z-index:1;min-height:100vh;min-height:10
 .fg select option{background:#0d0d1a;color:var(--text)}
 
 /* Form Maps Selector — MÓVIL */
-.form-minimap-wrap {
-  height: 160px;
-  border-radius: var(--r-sm);
-  overflow: hidden;
-  border: 1px solid var(--glass-border);
-  position: relative;
-  margin-top: 4px;
-}
 .form-minimap {
-  width: 100%;
-  height: 100%;
+  pointer-events: none;
+}
+
+.form-minimap.active {
+  pointer-events: auto;
 }
 
 /* Image Upload Component — MÓVIL */
