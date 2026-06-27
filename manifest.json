@@ -1,0 +1,43 @@
+{
+  "name": "El Distrito — Venezuela Emergencia",
+  "short_name": "El Distrito",
+  "description": "Plataforma de emergencia post-sismo Venezuela 2026. Desaparecidos, réplicas, primeros auxilios, centros de acopio.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07070e",
+  "theme_color": "#07070e",
+  "orientation": "any",
+  "lang": "es",
+  "categories": ["utilities", "medical"],
+  "icons": [
+    {
+      "src": "/assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Reportar Desaparecido",
+      "url": "/?tab=desap",
+      "description": "Registrar persona desaparecida"
+    },
+    {
+      "name": "Asistente MIA",
+      "url": "/?tab=ia",
+      "description": "Chat de emergencia con IA"
+    },
+    {
+      "name": "Réplicas sísmicas",
+      "url": "/?tab=replicas",
+      "description": "Monitor de sismos en tiempo real"
+    }
+  ]
+}

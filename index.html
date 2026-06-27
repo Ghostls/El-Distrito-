@@ -2,8 +2,15 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="Plataforma de emergencia Venezuela — Desaparecidos, réplicas sísmicas, primeros auxilios, centros de acopio.">
+<meta name="theme-color" content="#07070e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="El Distrito">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/assets/icon-192.png">
 <title>El Distrito — Venezuela Emergencia 🇻🇪</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -21,14 +28,12 @@
   --text-sub:  #9a9ab0;
   --text-muted:#52526a;
 
-  /* liquid glass */
   --glass-bg:      rgba(255,255,255,0.045);
   --glass-bg2:     rgba(255,255,255,0.07);
   --glass-border:  rgba(255,255,255,0.09);
   --glass-border2: rgba(255,255,255,0.15);
   --glass-blur:    blur(20px);
 
-  /* accents */
   --red:    #ff3b3b;
   --red-d:  rgba(255,59,59,0.12);
   --red-b:  rgba(255,59,59,0.28);
@@ -59,7 +64,6 @@ body{
   min-height:100vh;
 }
 
-/* ambient glow */
 body::before{
   content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background:
@@ -100,7 +104,6 @@ nav{
 .nav-alert-dot{width:5px;height:5px;background:var(--red);border-radius:50%;animation:blink 1.4s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
 
-/* desktop tabs — centered */
 .nav-tabs{
   flex:1;display:flex;align-items:center;justify-content:center;gap:2px;
 }
@@ -128,13 +131,11 @@ nav{
 .nav-bot:hover{background:rgba(34,197,94,0.2)}
 .nav-bot-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:blink 1.8s infinite}
 
-/* mobile hamburger */
 .nav-ham{
   display:none;background:none;border:none;color:var(--text-sub);
   font-size:20px;cursor:pointer;padding:4px;margin-left:auto;
 }
 
-/* mobile drawer */
 .mobile-drawer{
   display:none;position:fixed;top:58px;left:0;right:0;z-index:250;
   background:rgba(7,7,14,0.96);backdrop-filter:blur(28px);
@@ -176,7 +177,6 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
   transition:border-color .2s,box-shadow .2s;
   position:relative;overflow:hidden;
 }
-/* subtle inner shine */
 .card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);
@@ -315,20 +315,48 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 .map-wrap{height:370px;border-radius:10px;overflow:hidden;border:1px solid var(--glass-border)}
 .leaflet-container{background:#11111f!important}
 
+/* Leaflet popup oscuro */
+.leaflet-popup-content-wrapper{background:#0d0d1a!important;color:#f0f0f0!important;border:1px solid rgba(255,255,255,0.1)!important;border-radius:10px!important;box-shadow:0 8px 32px rgba(0,0,0,0.5)!important}
+.leaflet-popup-tip{background:#0d0d1a!important}
+.leaflet-popup-content{font-family:'Inter',sans-serif;font-size:12px;line-height:1.6}
+
 /* ═══════════════════════════════════════════
-   REPLICAS
+   RÉPLICAS — MAPA MEJORADO
 ═══════════════════════════════════════════ */
-.rep-list{display:flex;flex-direction:column;gap:6px;max-height:370px;overflow-y:auto}
+.rep-controls{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  margin-bottom:14px;
+}
+.rep-filter-btn{
+  background:var(--glass-bg);border:1px solid var(--glass-border);
+  color:var(--text-muted);font-family:'Share Tech Mono',monospace;
+  font-size:10px;letter-spacing:0.06em;padding:5px 12px;border-radius:6px;
+  cursor:pointer;transition:all .15s;
+}
+.rep-filter-btn.active,.rep-filter-btn:hover{
+  background:var(--glass-bg2);color:var(--text);border-color:var(--glass-border2);
+}
+.rep-last-update{
+  margin-left:auto;font-family:'Share Tech Mono',monospace;
+  font-size:10px;color:var(--text-muted);
+}
+.rep-list{display:flex;flex-direction:column;gap:6px;max-height:440px;overflow-y:auto}
 .rep-list::-webkit-scrollbar{width:3px}
 .rep-list::-webkit-scrollbar-thumb{background:var(--glass-border2);border-radius:2px}
 .rep-item{
   background:var(--glass-bg);border:1px solid var(--glass-border);
   border-radius:var(--r-sm);padding:11px 15px;
   display:flex;align-items:center;gap:14px;
+  cursor:pointer;transition:border-color .15s;
 }
+.rep-item:hover{border-color:var(--glass-border2)}
+.rep-item.highlight{border-color:var(--blue);background:var(--bl-d)}
 .rep-mag{font-family:'Share Tech Mono',monospace;font-size:20px;font-weight:700;min-width:44px;text-align:center}
 .rep-place{font-size:12px;font-weight:500}
 .rep-time{font-size:11px;color:var(--text-muted);margin-top:2px;font-family:'Share Tech Mono',monospace}
+.rep-depth{font-size:10px;color:var(--text-muted);margin-top:1px}
+
+.map-wrap-tall{height:460px;border-radius:10px;overflow:hidden;border:1px solid var(--glass-border)}
 
 /* ═══════════════════════════════════════════
    FIRST AID
@@ -383,7 +411,7 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 .chat-input input:focus{border-color:var(--glass-border2)}
 
 /* ═══════════════════════════════════════════
-   ACOPIO ITEMS / DAMAGE ITEMS
+   ACOPIO / DAMAGE
 ═══════════════════════════════════════════ */
 .acopio-item,.damage-item{
   background:var(--glass-bg);border:1px solid var(--glass-border);
@@ -435,7 +463,7 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
   .alert-stats{gap:10px}
   .a-stat-val{font-size:16px}
   .metric-val{font-size:32px}
-  .map-wrap{height:280px}
+  .map-wrap,.map-wrap-tall{height:280px}
 }
 </style>
 </head>
@@ -459,14 +487,13 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
   </div>
 
   <div class="nav-tabs">
-    <button class="nav-tab active"  onclick="go('inicio',this)">Inicio</button>
-    <button class="nav-tab"         onclick="go('ia',this)">Asistente IA</button>
-    <button class="nav-tab"         onclick="go('desap',this)">Desaparecidos</button>
-    <button class="nav-tab"         onclick="go('replicas',this)">Réplicas</button>
-    <button class="nav-tab"         onclick="go('danos',this)">Daños</button>
-    <button class="nav-tab"         onclick="go('acopio',this)">Acopio</button>
-    <button class="nav-tab"         onclick="go('auxilios',this)">Primeros Auxilios</button>
-    
+    <button class="nav-tab active" onclick="go('inicio',this)">Inicio</button>
+    <button class="nav-tab"        onclick="go('ia',this)">Asistente IA</button>
+    <button class="nav-tab"        onclick="go('desap',this)">Desaparecidos</button>
+    <button class="nav-tab"        onclick="go('replicas',this)">Réplicas</button>
+    <button class="nav-tab"        onclick="go('danos',this)">Daños</button>
+    <button class="nav-tab"        onclick="go('acopio',this)">Acopio</button>
+    <button class="nav-tab"        onclick="go('auxilios',this)">Primeros Auxilios</button>
   </div>
 
   <a href="https://t.me/MIA_Valkyron_Bot" target="_blank" class="nav-bot">
@@ -492,8 +519,6 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 
 <!-- ═══════════ INICIO ═══════════ -->
 <div class="page active" id="page-inicio">
-
-  <!-- alert banner -->
   <div class="alert-banner mb18">
     <div>
       <div class="alert-title">🇻🇪 VENEZUELA — TERREMOTO 24 JUN 2026</div>
@@ -506,7 +531,6 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
     </div>
   </div>
 
-  <!-- live counters -->
   <div class="g3 mb18">
     <div class="card clickable" style="border-color:var(--red-b)" onclick="go('desap')">
       <div class="card-head">
@@ -537,22 +561,20 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
     </div>
   </div>
 
-  <!-- emergencias -->
   <div class="card mb18">
     <div class="card-head">
       <span class="card-label">📞 Números de emergencia Venezuela</span>
       <span class="chip chip-red">24 / 7</span>
     </div>
     <div class="emerg-grid">
-      <a href="tel:911"           class="emerg-item"><span class="emerg-ico">🚨</span><div><div class="emerg-name">Emergencias</div><div class="emerg-num">911</div><div class="emerg-note">Nacional · 24/7</div></div></a>
-      <a href="tel:171"           class="emerg-item"><span class="emerg-ico">🚒</span><div><div class="emerg-name">Bomberos</div><div class="emerg-num">171</div><div class="emerg-note">Rescate estructural</div></div></a>
-      <a href="tel:08001234567"   class="emerg-item"><span class="emerg-ico">⛑️</span><div><div class="emerg-name">Protección Civil</div><div class="emerg-num">0800-7248451</div><div class="emerg-note">Coordinación</div></div></a>
-      <a href="tel:116"           class="emerg-item"><span class="emerg-ico">🧠</span><div><div class="emerg-name">Protección Civil</div><div class="emerg-num">116</div><div class="emerg-note">Crisis</div></div></a>
+      <a href="tel:911"         class="emerg-item"><span class="emerg-ico">🚨</span><div><div class="emerg-name">Emergencias</div><div class="emerg-num">911</div><div class="emerg-note">Nacional · 24/7</div></div></a>
+      <a href="tel:171"         class="emerg-item"><span class="emerg-ico">🚒</span><div><div class="emerg-name">Bomberos</div><div class="emerg-num">171</div><div class="emerg-note">Rescate estructural</div></div></a>
+      <a href="tel:08007248451" class="emerg-item"><span class="emerg-ico">⛑️</span><div><div class="emerg-name">Protección Civil</div><div class="emerg-num">0800-7248451</div><div class="emerg-note">Coordinación</div></div></a>
+      <a href="tel:116"         class="emerg-item"><span class="emerg-ico">🧠</span><div><div class="emerg-name">Crisis psicológica</div><div class="emerg-num">116</div><div class="emerg-note">Apoyo emocional</div></div></a>
       <a href="https://t.me/MIA_Valkyron_Bot" target="_blank" class="emerg-item"><span class="emerg-ico">🤖</span><div><div class="emerg-name">Bot Emergencia</div><div class="emerg-num" style="color:var(--green)">@MIA_Bot</div><div class="emerg-note">Telegram · sin WiFi</div></div></a>
     </div>
   </div>
 
-  <!-- quick actions -->
   <div class="g3 mb18">
     <div class="card clickable" style="border-color:var(--red-b)" onclick="go('desap')">
       <div style="font-size:30px;margin-bottom:10px">👤</div>
@@ -571,7 +593,6 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
     </div>
   </div>
 
-  <!-- telegram strip -->
   <div class="card" style="background:var(--gr-d);border-color:var(--gr-b)">
     <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
       <div style="font-size:26px">💬</div>
@@ -617,7 +638,7 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
     <div class="card">
       <div class="card-head"><span class="card-label">🔍 Buscar persona</span><span class="chip chip-blue">BASE DE DATOS</span></div>
       <div class="sbar">
-        <input class="fg" style="margin:0;flex:1;padding:9px 13px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:var(--r-sm);color:var(--text);font-size:13px;outline:none"
+        <input style="flex:1;padding:9px 13px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:var(--r-sm);color:var(--text);font-size:13px;outline:none"
           id="buscar" placeholder="Nombre, lugar, estado..." oninput="buscarDesap()">
         <button class="btn btn-ghost btn-sm" onclick="buscarDesap()">Buscar</button>
       </div>
@@ -639,26 +660,42 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
       <div class="alert-sub">Fuente: USGS Earthquake Hazards Program · Actualización automática cada 60 segundos</div>
     </div>
     <div class="alert-stats">
-      <div class="a-stat"><div class="a-stat-val" id="rep-total" style="color:var(--blue)">—</div><div class="a-stat-lbl">Réplicas / 7 días</div></div>
+      <div class="a-stat"><div class="a-stat-val" id="rep-total" style="color:var(--blue)">—</div><div class="a-stat-lbl">Sismos / 7 días</div></div>
       <div class="a-stat"><div class="a-stat-val" id="rep-max" style="color:var(--orange)">—</div><div class="a-stat-lbl">Mayor magnitud</div></div>
-      <div class="a-stat"><div class="a-stat-val" id="rep-last" style="color:var(--green)">—</div><div class="a-stat-lbl">Última réplica</div></div>
+      <div class="a-stat"><div class="a-stat-val" id="rep-sig" style="color:var(--red)">—</div><div class="a-stat-lbl">M4.0+ hoy</div></div>
+      <div class="a-stat"><div class="a-stat-val" id="rep-last" style="color:var(--green)">—</div><div class="a-stat-lbl">Último sismo</div></div>
     </div>
   </div>
+
   <div class="g2">
-    <div class="card">
-      <div class="card-head"><span class="card-label">⚡ Lista de réplicas</span><span class="chip chip-blue">VIVO</span></div>
+    <div class="card" style="padding:18px">
+      <div class="card-head"><span class="card-label">⚡ Sismos registrados</span><span class="chip chip-blue" id="rep-chip">CARGANDO</span></div>
+
+      <!-- Filtros -->
+      <div class="rep-controls">
+        <button class="rep-filter-btn active" onclick="filtrarReplicas('all',this)">Todos</button>
+        <button class="rep-filter-btn" onclick="filtrarReplicas('4',this)">M4.0+</button>
+        <button class="rep-filter-btn" onclick="filtrarReplicas('3',this)">M3.0+</button>
+        <button class="rep-filter-btn" onclick="filtrarReplicas('2',this)">M2.0+</button>
+        <span class="rep-last-update" id="rep-updated">—</span>
+      </div>
+
       <div id="rep-list" class="rep-list"><div class="loading"><div class="spin"></div>Consultando USGS...</div></div>
     </div>
-    <div class="card">
-      <div class="card-head"><span class="card-label">🗺️ Mapa de réplicas</span><span class="chip chip-blue">USGS</span></div>
-      <div class="map-wrap" id="map-rep"></div>
-      <div style="margin-top:10px;display:flex;gap:14px;flex-wrap:wrap;align-items:center">
-        <span style="font-size:11px;color:var(--text-muted)">Magnitud:</span>
-        <span style="font-size:11px;color:#3b9eff">● &lt;2.0</span>
-        <span style="font-size:11px;color:#22c55e">● 2–3.9</span>
-        <span style="font-size:11px;color:#eab308">● 4–4.9</span>
-        <span style="font-size:11px;color:var(--orange)">● 5–5.9</span>
-        <span style="font-size:11px;color:var(--red)">● 6.0+</span>
+
+    <div class="card" style="padding:18px">
+      <div class="card-head"><span class="card-label">🗺️ Mapa sísmico</span><span class="chip chip-blue">VIVO</span></div>
+      <div class="map-wrap-tall" id="map-rep"></div>
+      <div style="margin-top:12px">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-family:'Share Tech Mono',monospace;letter-spacing:0.06em">MAGNITUD</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+          <span style="font-size:11px;color:#3b9eff">● &lt;2.0</span>
+          <span style="font-size:11px;color:#22c55e">● 2.0–3.9</span>
+          <span style="font-size:11px;color:#eab308">● 4.0–4.9</span>
+          <span style="font-size:11px;color:var(--orange)">● 5.0–5.9</span>
+          <span style="font-size:11px;color:var(--red)">● 6.0+</span>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">El tamaño del círculo es proporcional a la magnitud. Clic para detalles.</div>
       </div>
     </div>
   </div>
@@ -864,19 +901,28 @@ function jitter(c){ return {lat:c.lat+(Math.random()-.5)*.25, lng:c.lng+(Math.ra
 function coord(estado){ const c=COORDS[estado]; return c?jitter(c):{lat:9.5+Math.random()*2,lng:-68+Math.random()*2} }
 
 // ══════════════════════════════
-// NAV
+// NAV — con persistencia de tab
 // ══════════════════════════════
+const TABS = ['inicio','ia','desap','replicas','danos','acopio','auxilios'];
+
 function go(id, btn, fromDrawer=false){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.mob-tab').forEach(t=>t.classList.remove('active'));
-  if(btn) btn.classList.add('active');
+  // sync todos los botones
+  document.querySelectorAll('.nav-tab').forEach(t=>{
+    t.classList.toggle('active', t.getAttribute('onclick')?.includes(`'${id}'`));
+  });
+  document.querySelectorAll('.mob-tab').forEach(t=>{
+    t.classList.toggle('active', t.getAttribute('onclick')?.includes(`'${id}'`));
+  });
   if(fromDrawer) toggleDrawer();
   window.scrollTo(0,0);
-  if(id==='replicas'&&!repInit) initReplicas();
-  if(id==='danos'&&!danoInit) initDanos();
+  sessionStorage.setItem('tab', id);
+  // init lazy
+  if(id==='replicas' && !repInit) initReplicas();
+  if(id==='danos'    && !danoInit) initDanos();
 }
+
 function toggleDrawer(){
   document.getElementById('drawer').classList.toggle('open');
 }
@@ -884,7 +930,7 @@ function toggleDrawer(){
 // ══════════════════════════════
 // UTILS
 // ══════════════════════════════
-function msg(id,txt,color){
+function msgEl(id,txt,color){
   const el=document.getElementById(id);
   if(!el)return;
   el.textContent=txt; el.style.color=color;
@@ -903,8 +949,13 @@ function nivelColor(n){
 function ago(ts){
   const d=Date.now()-ts, h=Math.floor(d/3600000), m=Math.floor((d%3600000)/60000);
   if(h>24) return `Hace ${Math.floor(h/24)}d`;
-  if(h>0)  return `Hace ${h}h`;
-  return `Hace ${m}m`;
+  if(h>0)  return `Hace ${h}h ${m}m`;
+  if(m>0)  return `Hace ${m}m`;
+  return 'Hace menos de 1 min';
+}
+function fmtTime(ts){
+  const d=new Date(ts);
+  return d.toLocaleString('es-VE',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
 }
 
 // ══════════════════════════════
@@ -972,7 +1023,7 @@ async function reportarDesap(){
   const nombre=document.getElementById('f-nombre').value.trim();
   const lugar =document.getElementById('f-lugar').value.trim();
   const tel   =document.getElementById('f-tel').value.trim();
-  if(!nombre||!lugar||!tel){msg('desap-msg','Completa los campos obligatorios (*)','var(--red)');return;}
+  if(!nombre||!lugar||!tel){msgEl('desap-msg','Completa los campos obligatorios (*)','var(--red)');return;}
   const estado=document.getElementById('f-estado').value;
   const c=coord(estado);
   const {error}=await sb.from('desaparecidos').insert({
@@ -983,10 +1034,10 @@ async function reportarDesap(){
     notas:document.getElementById('f-notas').value,
     lat:c.lat,lng:c.lng,status:'buscado'
   });
-  if(error){msg('desap-msg','Error: '+error.message,'var(--red)');return;}
+  if(error){msgEl('desap-msg','Error: '+error.message,'var(--red)');return;}
   ['f-nombre','f-edad','f-lugar','f-tel','f-desc','f-notas'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-estado').value='';
-  msg('desap-msg','✅ Reporte publicado. Que lo encuentren pronto.','var(--green)');
+  msgEl('desap-msg','✅ Reporte publicado. Que lo encuentren pronto.','var(--green)');
   cargarDesap(); dashboard();
 }
 
@@ -1014,46 +1065,124 @@ function initDesap(){
 }
 
 // ══════════════════════════════
-// RÉPLICAS USGS
+// RÉPLICAS USGS — MEJORADO
 // ══════════════════════════════
 let mapRep=null, repInit=false;
+let allQuakes=[], repMarkers=[], repFilterMin=0;
+let repInterval=null;
+
+function magRadius(m){ return Math.max(6, m * 4.5); }
 
 async function loadReplicas(){
   try{
-    const url='https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2026-06-24&minlatitude=5&maxlatitude=13&minlongitude=-74&maxlongitude=-59&minmagnitude=1.5&orderby=time&limit=50';
-    const r=await fetch(url);
-    const data=await r.json();
-    const ft=data.features||[];
-    const mags=ft.map(f=>f.properties.mag).filter(Boolean);
-    document.getElementById('rep-total').textContent=ft.length;
-    document.getElementById('rep-max').textContent=mags.length?Math.max(...mags).toFixed(1):'—';
-    document.getElementById('rep-last').textContent=ft.length?ago(ft[0].properties.time):'—';
-    const el=document.getElementById('rep-list');
-    if(!ft.length){el.innerHTML='<div class="empty">Sin réplicas registradas</div>';return;}
-    el.innerHTML=ft.slice(0,25).map(f=>{
-      const p=f.properties,c=f.geometry.coordinates;
-      return `<div class="rep-item">
-        <div class="rep-mag" style="color:${magColor(p.mag)}">${(p.mag||0).toFixed(1)}</div>
-        <div><div class="rep-place">${p.place||'Venezuela'}</div><div class="rep-time">${ago(p.time)} · Prof. ${(c[2]||0).toFixed(0)} km</div></div>
-      </div>`;
-    }).join('');
-    if(mapRep){
-      mapRep.eachLayer(l=>{if(l._vk)mapRep.removeLayer(l)});
-      ft.forEach(f=>{
-        const c=f.geometry.coordinates,p=f.properties;
-        const m=L.circleMarker([c[1],c[0]],{radius:Math.max(5,(p.mag||1)*3),fillColor:magColor(p.mag),color:'#fff',weight:1,fillOpacity:.8});
-        m._vk=true;
-        m.bindPopup(`<strong>M${(p.mag||0).toFixed(1)}</strong><br>${p.place}<br>${ago(p.time)}<br>Prof: ${(c[2]||0).toFixed(0)}km`).addTo(mapRep);
-      });
-    }
-  }catch(e){document.getElementById('rep-list').innerHTML='<div class="empty">⚠️ Error al conectar con USGS</div>'}
+    // Últimos 7 días, Venezuela y alrededores
+    const now = Date.now();
+    const start = new Date(now - 7*24*3600*1000).toISOString().split('T')[0];
+    const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start}&minlatitude=4&maxlatitude=14&minlongitude=-75&maxlongitude=-58&minmagnitude=1.5&orderby=time&limit=100`;
+    const r = await fetch(url);
+    if(!r.ok) throw new Error('USGS error');
+    const data = await r.json();
+    allQuakes = data.features || [];
+
+    // Stats
+    const mags = allQuakes.map(f=>f.properties.mag).filter(Boolean);
+    const todayTs = new Date(); todayTs.setHours(0,0,0,0);
+    const sig = allQuakes.filter(f=>f.properties.mag>=4.0 && f.properties.time >= todayTs.getTime()).length;
+
+    document.getElementById('rep-total').textContent = allQuakes.length;
+    document.getElementById('rep-max').textContent   = mags.length ? Math.max(...mags).toFixed(1) : '—';
+    document.getElementById('rep-sig').textContent   = sig;
+    document.getElementById('rep-last').textContent  = allQuakes.length ? ago(allQuakes[0].properties.time) : '—';
+    document.getElementById('rep-chip').textContent  = 'VIVO';
+    document.getElementById('rep-updated').textContent = 'Actualizado: ' + new Date().toLocaleTimeString('es-VE',{hour:'2-digit',minute:'2-digit'});
+
+    renderRepList();
+    renderRepMap();
+  }catch(e){
+    document.getElementById('rep-list').innerHTML='<div class="empty">⚠️ Error al conectar con USGS. Reintentando...</div>';
+    document.getElementById('rep-chip').textContent='ERROR';
+  }
+}
+
+function filtrarReplicas(min, btn){
+  repFilterMin = min === 'all' ? 0 : parseFloat(min);
+  document.querySelectorAll('.rep-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderRepList();
+  renderRepMap();
+}
+
+function renderRepList(){
+  const el = document.getElementById('rep-list');
+  const filtered = allQuakes.filter(f => (f.properties.mag||0) >= repFilterMin);
+  if(!filtered.length){el.innerHTML='<div class="empty">Sin sismos con ese filtro</div>';return;}
+  el.innerHTML = filtered.slice(0,30).map((f,i)=>{
+    const p=f.properties, c=f.geometry.coordinates;
+    const mag = (p.mag||0).toFixed(1);
+    const depth = (c[2]||0).toFixed(0);
+    return `<div class="rep-item" id="ri-${i}" onclick="focusQuake(${c[1]},${c[0]},${i})">
+      <div class="rep-mag" style="color:${magColor(p.mag)}">${mag}</div>
+      <div style="flex:1;min-width:0">
+        <div class="rep-place">${p.place||'Venezuela'}</div>
+        <div class="rep-time">${fmtTime(p.time)} · ${ago(p.time)}</div>
+        <div class="rep-depth">Prof: ${depth} km · ${depth<70?'<span style="color:var(--orange)">Superficial</span>':depth<300?'Intermedio':'Profundo'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderRepMap(){
+  if(!mapRep) return;
+  // Limpiar markers anteriores
+  repMarkers.forEach(m=>mapRep.removeLayer(m));
+  repMarkers=[];
+
+  const filtered = allQuakes.filter(f=>(f.properties.mag||0)>=repFilterMin);
+  filtered.forEach((f,i)=>{
+    const c=f.geometry.coordinates, p=f.properties;
+    if(!c[0]||!c[1]) return;
+    const depth = (c[2]||0).toFixed(0);
+    const m=L.circleMarker([c[1],c[0]],{
+      radius:magRadius(p.mag||1),
+      fillColor:magColor(p.mag),
+      color:'rgba(255,255,255,0.3)',
+      weight:1,
+      fillOpacity:0.75,
+    });
+    m.bindPopup(`
+      <div style="min-width:200px">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:22px;font-weight:700;color:${magColor(p.mag)};margin-bottom:4px">M${(p.mag||0).toFixed(1)}</div>
+        <div style="font-weight:600;margin-bottom:4px">${p.place||'Venezuela'}</div>
+        <div style="color:#9a9ab0;font-size:11px">${fmtTime(p.time)}</div>
+        <div style="color:#9a9ab0;font-size:11px">Profundidad: ${depth} km</div>
+        <div style="color:#9a9ab0;font-size:11px">${ago(p.time)}</div>
+        ${p.mag>=5?`<div style="color:#ff3b3b;font-size:11px;margin-top:4px;font-weight:600">⚠️ Sismo significativo</div>`:''}
+      </div>
+    `);
+    m.on('click',()=>{
+      document.querySelectorAll('.rep-item').forEach(el=>el.classList.remove('highlight'));
+      const li = document.getElementById(`ri-${i}`);
+      if(li){li.classList.add('highlight');li.scrollIntoView({behavior:'smooth',block:'nearest'});}
+    });
+    m.addTo(mapRep);
+    repMarkers.push(m);
+  });
+}
+
+function focusQuake(lat,lng,i){
+  if(!mapRep) return;
+  mapRep.flyTo([lat,lng], 8, {duration:1});
+  document.querySelectorAll('.rep-item').forEach(el=>el.classList.remove('highlight'));
+  document.getElementById(`ri-${i}`)?.classList.add('highlight');
+  if(repMarkers[i]) repMarkers[i].openPopup();
 }
 
 function initReplicas(){
   if(repInit)return; repInit=true;
-  mapRep=L.map('map-rep').setView([10.5,-67.5],6);
+  mapRep=L.map('map-rep').setView([10.0,-67.5],6);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© CARTO',maxZoom:18}).addTo(mapRep);
-  loadReplicas(); setInterval(loadReplicas,60000);
+  loadReplicas();
+  repInterval=setInterval(loadReplicas,60000);
 }
 
 // ══════════════════════════════
@@ -1089,7 +1218,7 @@ async function cargarDanos(){
 
 async function reportarDano(){
   const ubi=document.getElementById('d-ubi').value.trim();
-  if(!ubi){msg('dano-msg','Ingresa la ubicación del daño','var(--red)');return;}
+  if(!ubi){msgEl('dano-msg','Ingresa la ubicación del daño','var(--red)');return;}
   const estado=document.getElementById('d-estado').value;
   const c=coord(estado);
   const {error}=await sb.from('daños_estructurales').insert({
@@ -1101,9 +1230,9 @@ async function reportarDano(){
     telefono:document.getElementById('d-tel').value,
     lat:c.lat,lng:c.lng
   });
-  if(error){msg('dano-msg','Error: '+error.message,'var(--red)');return;}
+  if(error){msgEl('dano-msg','Error: '+error.message,'var(--red)');return;}
   ['d-ubi','d-desc','d-tel'].forEach(id=>document.getElementById(id).value='');
-  msg('dano-msg','✅ Reporte registrado. Gracias por informar.','var(--green)');
+  msgEl('dano-msg','✅ Reporte registrado. Gracias por informar.','var(--green)');
   cargarDanos(); dashboard();
 }
 
@@ -1140,7 +1269,7 @@ async function cargarAcopios(){
 async function reportarAcopio(){
   const nom=document.getElementById('ac-nom').value.trim();
   const dir=document.getElementById('ac-dir').value.trim();
-  if(!nom||!dir){msg('acopio-msg','Nombre y dirección son obligatorios','var(--red)');return;}
+  if(!nom||!dir){msgEl('acopio-msg','Nombre y dirección son obligatorios','var(--red)');return;}
   const necesidades=[...document.querySelectorAll('#necesidades input:checked')].map(i=>i.value);
   const estado=document.getElementById('ac-estado').value;
   const c=coord(estado);
@@ -1150,10 +1279,10 @@ async function reportarAcopio(){
     necesidades,contacto:document.getElementById('ac-contacto').value,
     lat:c.lat,lng:c.lng
   });
-  if(error){msg('acopio-msg','Error: '+error.message,'var(--red)');return;}
+  if(error){msgEl('acopio-msg','Error: '+error.message,'var(--red)');return;}
   ['ac-nom','ac-dir','ac-contacto'].forEach(id=>document.getElementById(id).value='');
   document.querySelectorAll('#necesidades input').forEach(i=>i.checked=false);
-  msg('acopio-msg','✅ Centro registrado. La comunidad lo agradece.','var(--green)');
+  msgEl('acopio-msg','✅ Centro registrado. La comunidad lo agradece.','var(--green)');
   cargarAcopios(); dashboard();
 }
 
@@ -1199,15 +1328,37 @@ function addMsg(txt,role,temp=false){
   c.appendChild(el); c.scrollTop=c.scrollHeight;
   return el;
 }
-function quickQ(q){document.getElementById('chat-in').value=q;enviarChat()}
+function quickQ(q){document.getElementById('chat-in').value=q;enviarChat();}
 
 // ══════════════════════════════
-// INIT
+// PWA — Service Worker
+// ══════════════════════════════
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/sw.js')
+      .then(r=>console.log('SW registrado:',r.scope))
+      .catch(e=>console.warn('SW:',e));
+  });
+}
+
+// ══════════════════════════════
+// INIT — restaura tab al recargar
 // ══════════════════════════════
 dashboard();
 initDesap();
 cargarAcopios();
 setInterval(dashboard,30000);
+
+// Restaurar tab guardado en sessionStorage
+const savedTab = sessionStorage.getItem('tab') || 'inicio';
+if(savedTab && savedTab !== 'inicio'){
+  go(savedTab, null, false);
+} else {
+  // Asegurar que inicio esté activo con su nav-tab
+  document.querySelectorAll('.nav-tab').forEach(t=>{
+    t.classList.toggle('active', t.getAttribute('onclick')?.includes("'inicio'"));
+  });
+}
 </script>
 </body>
 </html>
