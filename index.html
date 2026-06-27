@@ -108,16 +108,40 @@ nav{
 .nav-alert{
   display:flex;align-items:center;gap:4px;
   background:var(--red-d);border:1px solid var(--red-b);
-  color:var(--red);font-family:'Share Tech Mono',monospace;
+  color:#fff; /* texto blanco para contraste */
+  font-family:'Share Tech Mono',monospace;
   font-size:10px;letter-spacing:0.08em;
   padding:4px 10px;border-radius:6px;flex-shrink:0;
   white-space:nowrap;
 }
-.nav-alert-dot{width:5px;height:5px;background:var(--red);border-radius:50%;animation:blink 1.4s infinite}
+.nav-alert-dot{width:5px;height:5px;background:#fff;border-radius:50%;animation:blink 1.4s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
 
 .nav-tabs{
   display:none; /* Oculto en móvil, se usa el drawer */
+}
+
+/* Estilos mejorados para los botones de navegación (visibles en escritorio) */
+.nav-tab{
+  background:rgba(255,255,255,0.03);
+  border:1px solid transparent;
+  color:#b0b0c0;
+  font-family:'Inter',sans-serif;
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:0.02em;
+  padding:6px 12px;
+  border-radius:7px;
+  cursor:pointer;
+  transition:all .15s;
+  white-space:nowrap;
+  min-height:34px;
+}
+.nav-tab:hover{color:var(--text);background:rgba(255,255,255,0.08);border-color:var(--glass-border)}
+.nav-tab.active{
+  color:var(--text);
+  background:rgba(255,255,255,0.1);
+  border:1px solid var(--glass-border2);
 }
 
 .nav-bot{
@@ -1792,27 +1816,28 @@ async function reportarDesap(){
     notas:document.getElementById('f-notas').value,
     lat:latVal,
     lng:lngVal,
-    status:'buscado',
-    foto:formPhotos.f
+    status:'buscado'
   };
   
-  const {error}=await sb.from('desaparecidos').insert(payload);
+  // Solo agregar foto si existe
+  if (formPhotos.f) payload.foto = formPhotos.f;
   
-  if(error){
-    if (error.message && error.message.includes('column "foto" does not exist')) {
-      delete payload.foto;
-      if (formPhotos.f) {
-        payload.notas = (payload.notas ? payload.notas + '\n\n' : '') + '[Imagen guardada localmente]';
-      }
-      const retry = await sb.from('desaparecidos').insert(payload);
-      if (retry.error) {
-        msgEl('desap-msg','Error: '+retry.error.message,'var(--red)');
-        return;
-      }
-    } else {
-      msgEl('desap-msg','Error: '+error.message,'var(--red)');
+  let {error} = await sb.from('desaparecidos').insert(payload);
+  
+  // Si falla por la columna foto, reintentar sin foto
+  if (error && error.message && error.message.includes('foto')) {
+    delete payload.foto;
+    const retry = await sb.from('desaparecidos').insert(payload);
+    if (retry.error) {
+      msgEl('desap-msg','Error: '+retry.error.message,'var(--red)');
       return;
     }
+    error = null;
+  }
+  
+  if (error) {
+    msgEl('desap-msg','Error: '+error.message,'var(--red)');
+    return;
   }
   
   ['f-nombre','f-edad','f-lugar','f-tel','f-desc','f-notas'].forEach(id=>document.getElementById(id).value='');
@@ -2144,27 +2169,26 @@ async function reportarDano(){
     atrapados:document.getElementById('d-atrap').value,
     telefono:document.getElementById('d-tel').value,
     lat:latVal,
-    lng:lngVal,
-    foto:formPhotos.d
+    lng:lngVal
   };
   
-  const {error}=await sb.from('daños_estructurales').insert(payload);
+  if (formPhotos.d) payload.foto = formPhotos.d;
   
-  if(error){
-    if (error.message && error.message.includes('column "foto" does not exist')) {
-      delete payload.foto;
-      if (formPhotos.d) {
-        payload.descripcion = (payload.descripcion ? payload.descripcion + '\n\n' : '') + '[Imagen guardada localmente]';
-      }
-      const retry = await sb.from('daños_estructurales').insert(payload);
-      if (retry.error) {
-        msgEl('dano-msg','Error: '+retry.error.message,'var(--red)');
-        return;
-      }
-    } else {
-      msgEl('dano-msg','Error: '+error.message,'var(--red)');
+  let {error} = await sb.from('daños_estructurales').insert(payload);
+  
+  if (error && error.message && error.message.includes('foto')) {
+    delete payload.foto;
+    const retry = await sb.from('daños_estructurales').insert(payload);
+    if (retry.error) {
+      msgEl('dano-msg','Error: '+retry.error.message,'var(--red)');
       return;
     }
+    error = null;
+  }
+  
+  if (error) {
+    msgEl('dano-msg','Error: '+error.message,'var(--red)');
+    return;
   }
   
   ['d-ubi','d-desc','d-tel'].forEach(id=>document.getElementById(id).value='');
@@ -2320,27 +2344,26 @@ async function reportarAcopio(){
     nombre:nom,direccion:dir,estado,
     status:document.getElementById('ac-status').value,
     necesidades,contacto:document.getElementById('ac-contacto').value,
-    lat:latVal,lng:lngVal,
-    foto:formPhotos.ac
+    lat:latVal,lng:lngVal
   };
   
-  const {error}=await sb.from('centros_acopio').insert(payload);
+  if (formPhotos.ac) payload.foto = formPhotos.ac;
   
-  if(error){
-    if (error.message && error.message.includes('column "foto" does not exist')) {
-      delete payload.foto;
-      if (formPhotos.ac) {
-        payload.direccion = (payload.direccion ? payload.direccion + '\n\n' : '') + '[Imagen guardada localmente]';
-      }
-      const retry = await sb.from('centros_acopio').insert(payload);
-      if (retry.error) {
-        msgEl('acopio-msg','Error: '+retry.error.message,'var(--red)');
-        return;
-      }
-    } else {
-      msgEl('acopio-msg','Error: '+error.message,'var(--red)');
+  let {error} = await sb.from('centros_acopio').insert(payload);
+  
+  if (error && error.message && error.message.includes('foto')) {
+    delete payload.foto;
+    const retry = await sb.from('centros_acopio').insert(payload);
+    if (retry.error) {
+      msgEl('acopio-msg','Error: '+retry.error.message,'var(--red)');
       return;
     }
+    error = null;
+  }
+  
+  if (error) {
+    msgEl('acopio-msg','Error: '+error.message,'var(--red)');
+    return;
   }
   
   ['ac-nom','ac-dir','ac-contacto'].forEach(id=>document.getElementById(id).value='');
