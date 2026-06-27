@@ -86,24 +86,25 @@ body::before{
 ═══════════════════════════════════════════ */
 nav{
   position:fixed;top:0;left:0;right:0;z-index:300;
-  height:56px;
-  display:flex;align-items:left;
-  padding:0 12px;gap:8px;
+  height:64px;
+  display:flex;align-items:center;
+  padding:0 16px;gap:10px;
   background:rgba(7,7,14,0.92);
   backdrop-filter:blur(28px) saturate(1.4);
   -webkit-backdrop-filter:blur(28px) saturate(1.4);
   border-bottom:1px solid var(--glass-border);
-  min-height:var(--touch-min);
+  min-height:64px;
 }
 
 .nav-brand{display:flex;align-items:center;gap:8px;flex-shrink:0;cursor:pointer;padding:4px 0}
-.nav-logo-img{height:34px;width:auto;object-fit:contain;transition:transform 0.2s}
+.nav-logo-img{height:42px;width:auto;object-fit:contain;transition:transform 0.2s}
 .nav-logo-img:hover{transform:scale(1.05)}
+.nav-logo-img.logo-ed{height:48px}
 .nav-logo-fallback{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.15em;
   background:linear-gradient(135deg,#383838 0%,#888 60%,#e0e0e0 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .nav-sep{width:1px;height:20px;background:var(--glass-border2);flex-shrink:0}
-.nav-logo-ed{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:0.12em;color:var(--gold)}
+.nav-logo-ed{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.12em;color:var(--gold)}
 
 .nav-alert{
   display:flex;align-items:center;gap:4px;
@@ -125,7 +126,7 @@ nav{
 .nav-tab{
   background:rgba(255,255,255,0.03);
   border:1px solid transparent;
-  color:#333333;
+  color:var(--text-sub);
   font-family:'Inter',sans-serif;
   font-size:12px;
   font-weight:500;
@@ -158,22 +159,26 @@ nav{
 
 .nav-ham{
   display:flex;
-  background:none;border:none;color:var(--text-sub);
-  font-size:28px;cursor:pointer;
-  padding:8px 10px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid var(--glass-border2);
+  border-radius:8px;
+  color:var(--text);
+  font-size:24px;cursor:pointer;
+  padding:6px 10px;
   margin-left:auto;
-  min-height:var(--touch-min);
-  min-width:var(--touch-min);
+  min-height:42px;
+  min-width:42px;
   align-items:center;
   justify-content:center;
   touch-action:manipulation;
+  flex-shrink:0;
 }
 
 /* ═══════════════════════════════════════════
    MOBILE DRAWER — MEJORADO PARA MÓVIL
 ═══════════════════════════════════════════ */
 .mobile-drawer{
-  position:fixed;top:56px;left:0;right:0;bottom:0;z-index:250;
+  position:fixed;top:64px;left:0;right:0;bottom:0;z-index:250;
   background:rgba(7,7,14,0.98);backdrop-filter:blur(28px);
   border-bottom:1px solid var(--glass-border);
   padding:16px 16px 24px;
@@ -197,14 +202,14 @@ nav{
 /* ═══════════════════════════════════════════
    LAYOUT — OPTIMIZADO PARA MÓVIL
 ═══════════════════════════════════════════ */
-main{padding-top:56px;position:relative;z-index:1;min-height:100vh;min-height:100dvh}
+main{padding-top:64px;position:relative;z-index:1;min-height:100vh;min-height:100dvh}
 .page{display:none;padding:16px 12px 32px;animation:fadeIn 0.25s ease-out}
 .page.active{display:block}
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-.g2{display:grid;grid-template-columns:1fr;gap:14px}
-.g3{display:grid;grid-template-columns:1fr;gap:12px}
-.g4{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g2{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
+.g3{display:grid;grid-template-columns:1fr;gap:12px;align-items:stretch}
+.g4{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:stretch}
 .span2{grid-column:span 1}
 .mb18{margin-bottom:14px}
 .mb28{margin-bottom:20px}
@@ -324,12 +329,17 @@ main{padding-top:56px;position:relative;z-index:1;min-height:100vh;min-height:10
 .fg select option{background:#0d0d1a;color:var(--text)}
 
 /* Form Maps Selector — MÓVIL */
-.form-minimap {
-  pointer-events: none;
+.form-minimap-wrap {
+  height: 220px;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  position: relative;
+  margin-top: 4px;
 }
-
-.form-minimap.active {
-  pointer-events: auto;
+.form-minimap {
+  width: 100%;
+  height: 100%;
 }
 
 /* Image Upload Component — MÓVIL */
@@ -403,7 +413,7 @@ main{padding-top:56px;position:relative;z-index:1;min-height:100vh;min-height:10
   touch-action:manipulation;
 }
 .btn:active{transform:scale(0.97)}
-.btn-red   {background:var(--red);color:#424242}
+.btn-red   {background:var(--red);color:#fff}
 .btn-red:active{background:#ff2020}
 .btn-green {background:var(--green);color:#000}
 .btn-green:active{background:#16a34a}
@@ -521,8 +531,8 @@ main{padding-top:56px;position:relative;z-index:1;min-height:100vh;min-height:10
 /* ═══════════════════════════════════════════
    MAPS — OPTIMIZADOS PARA MÓVIL
 ═══════════════════════════════════════════ */
-.map-wrap{height:320px;border-radius:10px;overflow:hidden;border:1px solid var(--glass-border);position:relative}
-.map-wrap-tall{height:340px;border-radius:10px;overflow:hidden;border:1px solid var(--glass-border)}
+.map-wrap{height:360px;border-radius:10px;overflow:hidden;border:1px solid var(--glass-border);position:relative}
+.map-wrap-tall{height:380px;border-radius:10px;overflow:hidden;border:1px solid var(--glass-border)}
 .leaflet-container{background:#11111f!important;touch-action:pan-x pan-y !important}
 
 /* Leaflet popup oscuro */
@@ -663,8 +673,13 @@ main{padding-top:56px;position:relative;z-index:1;min-height:100vh;min-height:10
   flex-wrap:wrap;
 }
 /* Los selects ya están definidos arriba en la sección FILTERS */
-.check-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-sub);cursor:pointer;user-select:none}
-.check-item input{accent-color:var(--green);width:16px;height:16px;cursor:pointer}
+.check-group{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.check-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);cursor:pointer;user-select:none;
+  background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:6px;
+  padding:5px 9px;transition:all .15s;flex-shrink:0;line-height:1.2;letter-spacing:0.02em;font-weight:500}
+.check-item:hover{background:rgba(255,255,255,0.07);color:var(--text-sub);border-color:var(--glass-border2)}
+.check-item input{accent-color:var(--green);width:13px;height:13px;cursor:pointer;flex-shrink:0}
+.check-item:has(input:checked){background:rgba(34,197,94,0.1);border-color:var(--gr-b);color:var(--green)}
 
 .divider{height:1px;background:var(--glass-border);margin:16px 0}
 
@@ -750,7 +765,7 @@ main{padding-top:56px;position:relative;z-index:1;min-height:100vh;min-height:10
   .emerg-grid{grid-template-columns:repeat(3,1fr)}
   .alert-banner{flex-direction:row;align-items:center;justify-content:space-between}
   .alert-stats{width:auto;justify-content:flex-end}
-  .nav-tabs{display:flex}
+  .nav-tabs{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:4px}
   .nav-ham{display:none}
   .frow{grid-template-columns:1fr 1fr}
 }
@@ -765,7 +780,7 @@ main{padding-top:56px;position:relative;z-index:1;min-height:100vh;min-height:10
          onerror="this.style.display='none';document.getElementById('vk-txt').style.display='block'">
     <span id="vk-txt" class="nav-logo-fallback" style="display:none">VALKYRON</span>
     <div class="nav-sep"></div>
-    <img src="./assets/logo-eldistrito.png" alt="El Distrito" class="nav-logo-img"
+    <img src="./assets/logo-eldistrito.png" alt="El Distrito" class="nav-logo-img logo-ed"
          onerror="this.style.display='none';document.getElementById('ed-txt').style.display='block'">
     <span id="ed-txt" class="nav-logo-ed" style="display:none">EL DISTRITO</span>
   </div>
@@ -1443,13 +1458,13 @@ function initFormMap(type, markerColor) {
   
   if (formMaps[type]) return; // Ya inicializado
   
-  const defaultLat = 10.48;
-  const defaultLng = -66.90;
+  const defaultLat = 10.60;
+  const defaultLng = -66.93;
   
   document.getElementById(latId).value = defaultLat.toFixed(5);
   document.getElementById(lngId).value = defaultLng.toFixed(5);
   
-  const map = L.map(containerId).setView([defaultLat, defaultLng], 6);
+  const map = L.map(containerId).setView([defaultLat, defaultLng], 9);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '© CARTO',
     maxZoom: 18
@@ -1471,8 +1486,50 @@ function initFormMap(type, markerColor) {
     document.getElementById(lngId).value = e.latlng.lng.toFixed(5);
   });
   
+  // Geocoder search bar above the map
+  const container = document.getElementById(containerId).parentElement;
+  const geocoderWrap = document.createElement('div');
+  geocoderWrap.style.cssText = 'display:flex;gap:6px;margin-bottom:6px';
+  geocoderWrap.innerHTML = `
+    <input id="${containerId}-geocoder" type="text" placeholder="Buscar dirección para centrar el mapa..." 
+      style="flex:1;padding:9px 12px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:8px;color:var(--text);font-size:13px;outline:none;min-height:40px">
+    <button onclick="geocodeAddress('${containerId}','${type}')" 
+      style="padding:9px 14px;background:rgba(255,255,255,0.08);border:1px solid var(--glass-border2);border-radius:8px;color:var(--text-sub);font-size:12px;cursor:pointer;white-space:nowrap;min-height:40px">
+      📍 Buscar
+    </button>`;
+  container.insertBefore(geocoderWrap, document.getElementById(containerId).parentElement.querySelector('.form-minimap-wrap'));
+  
+  document.getElementById(containerId+'-geocoder').addEventListener('keydown', e => {
+    if(e.key === 'Enter') geocodeAddress(containerId, type);
+  });
+  
   formMaps[type] = map;
   formMarkers[type] = marker;
+}
+
+async function geocodeAddress(containerId, type) {
+  const input = document.getElementById(containerId+'-geocoder');
+  const query = input.value.trim();
+  if (!query) return;
+  input.style.borderColor = 'var(--gold)';
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query+', Venezuela')}&format=json&limit=1&countrycodes=ve`, {
+      headers: { 'Accept-Language': 'es', 'User-Agent': 'ElDistritoEmergencia/1.0' }
+    });
+    const results = await r.json();
+    if (results && results.length > 0) {
+      const lat = parseFloat(results[0].lat);
+      const lng = parseFloat(results[0].lon);
+      updateFormMapFromCoords(type, lat, lng);
+      input.style.borderColor = 'var(--gr-b)';
+    } else {
+      input.style.borderColor = 'var(--red-b)';
+      setTimeout(() => input.style.borderColor = 'var(--glass-border)', 2000);
+    }
+  } catch(e) {
+    input.style.borderColor = 'var(--red-b)';
+    setTimeout(() => input.style.borderColor = 'var(--glass-border)', 2000);
+  }
 }
 
 function updateFormMapFromCoords(type, lat, lng) {
@@ -1919,7 +1976,7 @@ function updateDesapMap(data){
 
 function initDesap(){
   if(mapDesInit)return; mapDesInit=true;
-  mapDes=L.map('map-desap').setView([10.48,-67.2],7);
+  mapDes=L.map('map-desap').setView([10.55,-66.95],8);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© CARTO',maxZoom:18}).addTo(mapDes);
   
   clusterDesap = L.markerClusterGroup({
@@ -2407,7 +2464,7 @@ async function reportarAcopio(){
 
 function initAcopioMap() {
   if (acopioMapInit) return; acopioMapInit = true;
-  mapAcopio = L.map('map-acopio').setView([10.48,-66.90], 7);
+  mapAcopio = L.map('map-acopio').setView([10.55,-66.95], 8);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© CARTO',maxZoom:18}).addTo(mapAcopio);
   
   clusterAcopios = L.markerClusterGroup({
