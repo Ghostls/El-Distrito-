@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS desaparecidos (
   lng           DOUBLE PRECISION,
   status        TEXT DEFAULT 'buscado' CHECK (status IN ('buscado','encontrado')),
   reportado_por TEXT,
+  foto          TEXT,
   created_at    TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -37,6 +38,7 @@ CREATE TABLE IF NOT EXISTS daños_estructurales (
   lat           DOUBLE PRECISION,
   lng           DOUBLE PRECISION,
   verificado    BOOLEAN DEFAULT FALSE,
+  foto          TEXT,
   created_at    TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -53,6 +55,7 @@ CREATE TABLE IF NOT EXISTS centros_acopio (
   contacto      TEXT,
   lat           DOUBLE PRECISION,
   lng           DOUBLE PRECISION,
+  foto          TEXT,
   created_at    TIMESTAMPTZ DEFAULT NOW()
 );
 

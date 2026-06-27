@@ -14,7 +14,10 @@
 <title>El Distrito — Venezuela Emergencia 🇻🇪</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* ═══════════════════════════════════════════
@@ -77,40 +80,41 @@ body::before{
 ═══════════════════════════════════════════ */
 nav{
   position:fixed;top:0;left:0;right:0;z-index:300;
-  height:58px;
+  height:64px;
   display:flex;align-items:center;
-  padding:0 24px;gap:12px;
-  background:rgba(7,7,14,0.82);
+  padding:0 24px;gap:16px;
+  background:rgba(7,7,14,0.85);
   backdrop-filter:blur(28px) saturate(1.4);
   -webkit-backdrop-filter:blur(28px) saturate(1.4);
   border-bottom:1px solid var(--glass-border);
 }
 
-.nav-brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.nav-logo-img{height:30px;width:auto;object-fit:contain}
-.nav-logo-fallback{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.15em;
+.nav-brand{display:flex;align-items:center;gap:12px;flex-shrink:0;cursor:pointer}
+.nav-logo-img{height:42px;width:auto;object-fit:contain;transition:transform 0.2s}
+.nav-logo-img:hover{transform:scale(1.05)}
+.nav-logo-fallback{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.15em;
   background:linear-gradient(135deg,#e8e8e8 0%,#888 60%,#e0e0e0 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.nav-sep{width:1px;height:22px;background:var(--glass-border2);flex-shrink:0}
-.nav-logo-ed{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:0.12em;color:var(--gold)}
+.nav-sep{width:1px;height:26px;background:var(--glass-border2);flex-shrink:0}
+.nav-logo-ed{font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:0.12em;color:var(--gold)}
 
 .nav-alert{
   display:flex;align-items:center;gap:6px;
   background:var(--red-d);border:1px solid var(--red-b);
   color:var(--red);font-family:'Share Tech Mono',monospace;
-  font-size:10px;letter-spacing:0.1em;
-  padding:4px 10px;border-radius:6px;flex-shrink:0;
+  font-size:11px;letter-spacing:0.1em;
+  padding:5px 12px;border-radius:6px;flex-shrink:0;
 }
-.nav-alert-dot{width:5px;height:5px;background:var(--red);border-radius:50%;animation:blink 1.4s infinite}
+.nav-alert-dot{width:6px;height:6px;background:var(--red);border-radius:50%;animation:blink 1.4s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
 
 .nav-tabs{
-  flex:1;display:flex;align-items:center;justify-content:center;gap:2px;
+  flex:1;display:flex;align-items:center;justify-content:center;gap:4px;
 }
 .nav-tab{
   background:none;border:none;color:var(--text-muted);
-  font-family:'Inter',sans-serif;font-size:12px;font-weight:500;
-  letter-spacing:0.03em;padding:6px 13px;border-radius:7px;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
+  letter-spacing:0.02em;padding:8px 14px;border-radius:7px;
   cursor:pointer;transition:color .15s,background .15s;white-space:nowrap;
 }
 .nav-tab:hover{color:var(--text);background:var(--glass-bg)}
@@ -124,42 +128,45 @@ nav{
   display:flex;align-items:center;gap:6px;flex-shrink:0;
   background:var(--gr-d);border:1px solid var(--gr-b);
   color:var(--green);font-family:'Share Tech Mono',monospace;
-  font-size:10px;letter-spacing:0.06em;
-  padding:6px 12px;border-radius:7px;text-decoration:none;
+  font-size:11px;letter-spacing:0.06em;
+  padding:7px 14px;border-radius:7px;text-decoration:none;
   transition:background .2s;
 }
 .nav-bot:hover{background:rgba(34,197,94,0.2)}
-.nav-bot-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:blink 1.8s infinite}
+.nav-bot-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 1.8s infinite}
 
 .nav-ham{
   display:none;background:none;border:none;color:var(--text-sub);
-  font-size:20px;cursor:pointer;padding:4px;margin-left:auto;
+  font-size:24px;cursor:pointer;padding:6px;margin-left:auto;
 }
 
 .mobile-drawer{
-  display:none;position:fixed;top:58px;left:0;right:0;z-index:250;
-  background:rgba(7,7,14,0.96);backdrop-filter:blur(28px);
+  position:fixed;top:64px;left:0;right:0;bottom:0;z-index:250;
+  background:rgba(7,7,14,0.98);backdrop-filter:blur(28px);
   border-bottom:1px solid var(--glass-border);
-  padding:12px 16px;flex-direction:column;gap:4px;
+  padding:24px;display:flex;flex-direction:column;gap:8px;
+  transform:translateY(-105%);transition:transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
+  opacity:0;pointer-events:none;overflow-y:auto;
 }
-.mobile-drawer.open{display:flex}
+.mobile-drawer.open{transform:translateY(0);opacity:1;pointer-events:auto}
 .mob-tab{
   background:none;border:none;color:var(--text-sub);
-  font-size:13px;font-weight:500;text-align:left;
-  padding:10px 14px;border-radius:8px;cursor:pointer;transition:all .15s;
+  font-size:15px;font-weight:500;text-align:left;
+  padding:12px 16px;border-radius:8px;cursor:pointer;transition:all .15s;
 }
 .mob-tab:hover,.mob-tab.active{background:var(--glass-bg2);color:var(--text)}
 
 /* ═══════════════════════════════════════════
    LAYOUT
 ═══════════════════════════════════════════ */
-main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
-.page{display:none;padding:28px 28px 48px}
+main{padding-top:64px;position:relative;z-index:1;min-height:100vh}
+.page{display:none;padding:28px 28px 48px;animation:fadeIn 0.25s ease-out}
 .page.active{display:block}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
 .span2{grid-column:span 2}
 .mb18{margin-bottom:18px}
 .mb28{margin-bottom:28px}
@@ -176,6 +183,8 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
   padding:22px;
   transition:border-color .2s,box-shadow .2s;
   position:relative;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:space-between;
+  height:100%;
 }
 .card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
@@ -186,9 +195,9 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 .card.clickable{cursor:pointer}
 .card.clickable:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
 
-.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;width:100%}
 .card-label{
-  font-family:'Share Tech Mono',monospace;font-size:10px;
+  font-family:'Share Tech Mono',monospace;font-size:11px;
   letter-spacing:0.14em;color:var(--text-muted);text-transform:uppercase;
 }
 .chip{
@@ -206,63 +215,138 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 ═══════════════════════════════════════════ */
 .alert-banner{
   background:var(--red-d);border:1px solid var(--red-b);
-  border-radius:var(--r);padding:18px 22px;
+  border-radius:var(--r);padding:20px 24px;
   display:flex;align-items:center;justify-content:space-between;
   gap:16px;flex-wrap:wrap;margin-bottom:18px;
 }
-.alert-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.08em;color:var(--red)}
-.alert-sub{font-size:12px;color:var(--text-sub);margin-top:2px}
-.alert-stats{display:flex;gap:20px;flex-wrap:wrap}
+.alert-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:0.08em;color:var(--red)}
+.alert-sub{font-size:13px;color:var(--text-sub);margin-top:2px}
+.alert-stats{display:flex;gap:24px;flex-wrap:wrap}
 .a-stat{text-align:center}
-.a-stat-val{font-family:'Share Tech Mono',monospace;font-size:19px;font-weight:700;color:var(--red)}
-.a-stat-lbl{font-size:10px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-top:1px}
+.a-stat-val{font-family:'Share Tech Mono',monospace;font-size:22px;font-weight:700;color:var(--red)}
+.a-stat-lbl{font-size:11px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-top:2px}
 
 /* ═══════════════════════════════════════════
    DASHBOARD METRIC CARDS
 ═══════════════════════════════════════════ */
 .metric-val{
   font-family:'Share Tech Mono',monospace;
-  font-size:40px;font-weight:700;line-height:1;
-  margin:10px 0 4px;
+  font-size:42px;font-weight:700;line-height:1;
+  margin:12px 0 6px;
 }
-.metric-label{font-size:11px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase}
-.metric-sub{font-size:11px;margin-top:8px;opacity:.8}
+.metric-label{font-size:12px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase}
+.metric-sub{font-size:12px;margin-top:8px;opacity:.8}
 
 /* ═══════════════════════════════════════════
    EMERGENCY GRID
 ═══════════════════════════════════════════ */
-.emerg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.emerg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
 .emerg-item{
-  display:flex;align-items:center;gap:12px;
+  display:flex;align-items:center;gap:14px;
   background:var(--glass-bg);border:1px solid var(--glass-border);
-  border-radius:var(--r-sm);padding:14px 16px;
+  border-radius:var(--r-sm);padding:14px 18px;
   text-decoration:none;transition:all .2s;
+  height:100%;
 }
 .emerg-item:hover{border-color:var(--red-b);background:var(--red-d);transform:translateY(-2px)}
-.emerg-ico{font-size:22px;flex-shrink:0;width:30px;text-align:center}
-.emerg-name{font-size:12px;font-weight:500;color:var(--text)}
-.emerg-num{font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--red);font-weight:700;margin-top:1px}
-.emerg-note{font-size:10px;color:var(--text-muted);margin-top:1px}
+.emerg-ico{font-size:24px;flex-shrink:0;width:32px;text-align:center}
+.emerg-name{font-size:13px;font-weight:500;color:var(--text)}
+.emerg-num{font-family:'Share Tech Mono',monospace;font-size:16px;color:var(--red);font-weight:700;margin-top:1px}
+.emerg-note{font-size:11px;color:var(--text-muted);margin-top:1px}
 
 /* ═══════════════════════════════════════════
    FORMS
 ═══════════════════════════════════════════ */
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
-.fg label{font-size:10px;letter-spacing:0.1em;color:var(--text-muted);text-transform:uppercase;font-weight:500}
+.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.fg label{font-size:11px;letter-spacing:0.1em;color:var(--text-muted);text-transform:uppercase;font-weight:500}
 .fg input,.fg textarea,.fg select{
   background:rgba(255,255,255,0.05);
   border:1px solid var(--glass-border);
   border-radius:var(--r-sm);
-  color:var(--text);font-family:'Inter',sans-serif;font-size:13px;
-  padding:9px 13px;outline:none;transition:border-color .2s;width:100%;
+  color:var(--text);font-family:'Inter',sans-serif;font-size:13.5px;
+  padding:9px 13px;outline:none;transition:border-color .2s, background .2s;width:100%;
+  height:40px;box-sizing:border-box;
 }
-.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--glass-border2)}
-.fg textarea{resize:vertical;min-height:70px}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--glass-border2);background:rgba(255,255,255,0.07)}
+.fg textarea{resize:vertical;min-height:80px;height:auto}
 .fg select option{background:#0d0d1a}
-.check-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
-.check-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-sub);cursor:pointer}
-.check-item input{accent-color:var(--green);width:14px;height:14px}
+.check-group{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+.check-item{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-sub);cursor:pointer;user-select:none}
+.check-item input{accent-color:var(--green);width:15px;height:15px;cursor:pointer}
+
+/* Form Maps Selector */
+.form-minimap-wrap {
+  height: 190px;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  position: relative;
+  margin-top: 4px;
+}
+.form-minimap {
+  width: 100%;
+  height: 100%;
+}
+
+/* Image Upload Component */
+.photo-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+.photo-upload-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--glass-border2);
+  border-radius: var(--r-sm);
+  padding: 16px;
+  cursor: pointer;
+  background: rgba(255,255,255,0.02);
+  font-size: 13px;
+  color: var(--text-sub);
+  transition: all 0.2s;
+}
+.photo-upload-label:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: var(--glass-border);
+  color: var(--text);
+}
+.photo-preview-container {
+  position: relative;
+  width: 100%;
+  max-width: 220px;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  border: 1px solid var(--glass-border2);
+  background: var(--bg2);
+}
+.photo-preview-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  max-height: 150px;
+  object-fit: cover;
+}
+.photo-remove-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(255, 59, 59, 0.9);
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+.photo-remove-btn:hover {
+  background: rgb(255, 59, 59);
+}
 
 /* ═══════════════════════════════════════════
    BUTTONS
@@ -270,9 +354,9 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:7px;
   border:none;border-radius:var(--r-sm);cursor:pointer;
-  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+  font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;
   padding:10px 20px;transition:all .18s;letter-spacing:0.01em;
-  white-space:nowrap;
+  white-space:nowrap;height:40px;box-sizing:border-box;
 }
 .btn-red   {background:var(--red);color:#fff}
 .btn-red:hover{background:#ff2020;transform:translateY(-1px);box-shadow:0 4px 16px rgba(255,59,59,0.35)}
@@ -286,39 +370,80 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 }
 .btn-ghost:hover{background:var(--glass-bg2);color:var(--text);border-color:var(--glass-border2)}
 .btn-full{width:100%}
-.btn-sm{padding:7px 14px;font-size:12px}
+.btn-sm{padding:7px 14px;font-size:12px;height:32px}
 
 /* ═══════════════════════════════════════════
    LISTS
 ═══════════════════════════════════════════ */
-.list{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto;padding-right:2px}
-.list::-webkit-scrollbar{width:3px}
+.list{display:flex;flex-direction:column;gap:10px;max-height:420px;overflow-y:auto;padding-right:2px}
+.list::-webkit-scrollbar{width:4px}
 .list::-webkit-scrollbar-thumb{background:var(--glass-border2);border-radius:2px}
 
 .list-item{
   background:var(--glass-bg);border:1px solid var(--glass-border);
-  border-radius:var(--r-sm);padding:13px 15px;
-  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
-  transition:border-color .15s;
+  border-radius:var(--r-sm);padding:14px 18px;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+  transition:border-color .15s, background .15s;
 }
-.list-item:hover{border-color:var(--glass-border2)}
-.li-name{font-weight:500;font-size:13px;line-height:1.3}
-.li-meta{font-size:11px;color:var(--text-muted);margin-top:3px;line-height:1.5}
-.li-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.list-item:hover{border-color:var(--glass-border2);background:rgba(255,255,255,0.065)}
+.li-name{font-weight:600;font-size:14.5px;line-height:1.3}
+.li-meta{font-size:12px;color:var(--text-muted);margin-top:4px;line-height:1.5}
+.li-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0}
+
+/* List Item photo thumbnail */
+.li-photo-wrapper {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  margin-top: 6px;
+  cursor: pointer;
+}
+.li-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s;
+}
+.li-photo:hover {
+  transform: scale(1.1);
+}
 
 .tag-buscado  {background:var(--red-d);border:1px solid var(--red-b);color:var(--red);font-family:'Share Tech Mono',monospace;font-size:10px;padding:3px 8px;border-radius:5px}
 .tag-encontrado{background:var(--gr-d);border:1px solid var(--gr-b);color:var(--green);font-family:'Share Tech Mono',monospace;font-size:10px;padding:3px 8px;border-radius:5px}
 
+/* Prioridad Crítica */
+.priority-critical {
+  border-color: rgba(255, 59, 59, 0.4) !important;
+  background: rgba(255, 59, 59, 0.04) !important;
+  animation: glowRed 3s infinite ease-in-out;
+}
+@keyframes glowRed {
+  0%, 100% { box-shadow: 0 0 4px rgba(255,59,59,0); }
+  50% { box-shadow: 0 0 10px rgba(255,59,59,0.18); border-color: rgba(255, 59, 59, 0.6) !important; }
+}
+
+.report-highlight {
+  background: rgba(212, 168, 67, 0.15) !important;
+  border-color: var(--gold) !important;
+  animation: flashYellow 2s 2 ease-in-out;
+}
+@keyframes flashYellow {
+  0%, 100% { background: rgba(212, 168, 67, 0.15); }
+  50% { background: rgba(212, 168, 67, 0.3); }
+}
+
 /* ═══════════════════════════════════════════
    MAPS
 ═══════════════════════════════════════════ */
-.map-wrap{height:370px;border-radius:10px;overflow:hidden;border:1px solid var(--glass-border)}
+.map-wrap{height:400px;border-radius:10px;overflow:hidden;border:1px solid var(--glass-border);position:relative}
 .leaflet-container{background:#11111f!important}
 
 /* Leaflet popup oscuro */
-.leaflet-popup-content-wrapper{background:#0d0d1a!important;color:#f0f0f0!important;border:1px solid rgba(255,255,255,0.1)!important;border-radius:10px!important;box-shadow:0 8px 32px rgba(0,0,0,0.5)!important}
+.leaflet-popup-content-wrapper{background:#0d0d1a!important;color:#f0f0f0!important;border:1px solid rgba(255,255,255,0.12)!important;border-radius:10px!important;box-shadow:0 8px 32px rgba(0,0,0,0.6)!important}
 .leaflet-popup-tip{background:#0d0d1a!important}
-.leaflet-popup-content{font-family:'Inter',sans-serif;font-size:12px;line-height:1.6}
+.leaflet-popup-content{font-family:'Inter',sans-serif;font-size:12.5px;line-height:1.6;padding:4px}
 
 /* ═══════════════════════════════════════════
    RÉPLICAS — MAPA MEJORADO
@@ -330,7 +455,7 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 .rep-filter-btn{
   background:var(--glass-bg);border:1px solid var(--glass-border);
   color:var(--text-muted);font-family:'Share Tech Mono',monospace;
-  font-size:10px;letter-spacing:0.06em;padding:5px 12px;border-radius:6px;
+  font-size:11px;letter-spacing:0.06em;padding:6px 14px;border-radius:6px;
   cursor:pointer;transition:all .15s;
 }
 .rep-filter-btn.active,.rep-filter-btn:hover{
@@ -338,23 +463,23 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 }
 .rep-last-update{
   margin-left:auto;font-family:'Share Tech Mono',monospace;
-  font-size:10px;color:var(--text-muted);
+  font-size:11px;color:var(--text-muted);
 }
-.rep-list{display:flex;flex-direction:column;gap:6px;max-height:440px;overflow-y:auto}
-.rep-list::-webkit-scrollbar{width:3px}
+.rep-list{display:flex;flex-direction:column;gap:8px;max-height:440px;overflow-y:auto}
+.rep-list::-webkit-scrollbar{width:4px}
 .rep-list::-webkit-scrollbar-thumb{background:var(--glass-border2);border-radius:2px}
 .rep-item{
   background:var(--glass-bg);border:1px solid var(--glass-border);
-  border-radius:var(--r-sm);padding:11px 15px;
+  border-radius:var(--r-sm);padding:12px 16px;
   display:flex;align-items:center;gap:14px;
-  cursor:pointer;transition:border-color .15s;
+  cursor:pointer;transition:border-color .15s, background .15s;
 }
-.rep-item:hover{border-color:var(--glass-border2)}
+.rep-item:hover{border-color:var(--glass-border2);background:rgba(255,255,255,0.06)}
 .rep-item.highlight{border-color:var(--blue);background:var(--bl-d)}
-.rep-mag{font-family:'Share Tech Mono',monospace;font-size:20px;font-weight:700;min-width:44px;text-align:center}
-.rep-place{font-size:12px;font-weight:500}
-.rep-time{font-size:11px;color:var(--text-muted);margin-top:2px;font-family:'Share Tech Mono',monospace}
-.rep-depth{font-size:10px;color:var(--text-muted);margin-top:1px}
+.rep-mag{font-family:'Share Tech Mono',monospace;font-size:22px;font-weight:700;min-width:48px;text-align:center}
+.rep-place{font-size:13px;font-weight:500}
+.rep-time{font-size:11.5px;color:var(--text-muted);margin-top:3px;font-family:'Share Tech Mono',monospace}
+.rep-depth{font-size:11px;color:var(--text-muted);margin-top:2px}
 
 .map-wrap-tall{height:460px;border-radius:10px;overflow:hidden;border:1px solid var(--glass-border)}
 
@@ -365,7 +490,7 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 .aid-tab{
   background:var(--glass-bg);border:1px solid var(--glass-border);
   color:var(--text-muted);border-radius:var(--r-sm);
-  padding:7px 14px;cursor:pointer;font-size:12px;font-weight:500;
+  padding:8px 16px;cursor:pointer;font-size:12.5px;font-weight:500;
   transition:all .15s;
 }
 .aid-tab.active,.aid-tab:hover{
@@ -375,27 +500,27 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 .aid-panel.active{display:block}
 .aid-warn{
   background:var(--or-d);border:1px solid var(--or-b);
-  border-radius:var(--r-sm);padding:12px 16px;
-  margin-bottom:14px;font-size:12px;color:var(--orange);line-height:1.6;
+  border-radius:var(--r-sm);padding:14px 18px;
+  margin-bottom:16px;font-size:13px;color:var(--orange);line-height:1.6;
 }
-.aid-warn strong{display:block;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.1em;margin-bottom:4px}
+.aid-warn strong{display:block;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.1em;margin-bottom:4px}
 .aid-step{
-  display:flex;gap:14px;margin-bottom:12px;
+  display:flex;gap:16px;margin-bottom:14px;
   background:var(--glass-bg);border:1px solid var(--glass-border);
-  border-radius:var(--r-sm);padding:14px;
+  border-radius:var(--r-sm);padding:16px;
 }
-.aid-n{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--red);min-width:28px;line-height:1}
-.aid-title{font-weight:600;font-size:13px;margin-bottom:3px}
-.aid-desc{font-size:12px;color:var(--text-sub);line-height:1.65}
+.aid-n{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--red);min-width:30px;line-height:1}
+.aid-title{font-weight:600;font-size:14px;margin-bottom:4px}
+.aid-desc{font-size:12.5px;color:var(--text-sub);line-height:1.65}
 
 /* ═══════════════════════════════════════════
    CHAT
 ═══════════════════════════════════════════ */
 .chat-wrap{display:flex;flex-direction:column;height:460px}
-.chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
-.chat-msgs::-webkit-scrollbar{width:3px}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.chat-msgs::-webkit-scrollbar{width:4px}
 .chat-msgs::-webkit-scrollbar-thumb{background:var(--glass-border2);border-radius:2px}
-.msg{max-width:86%;padding:11px 15px;border-radius:10px;font-size:13px;line-height:1.6}
+.msg{max-width:86%;padding:12px 16px;border-radius:10px;font-size:13.5px;line-height:1.6}
 .msg-user{background:var(--bl-d);border:1px solid var(--bl-b);align-self:flex-end;color:var(--text)}
 .msg-ai{background:var(--glass-bg);border:1px solid var(--glass-border);align-self:flex-start;color:var(--text-sub)}
 .msg-ai strong{color:var(--text)}
@@ -406,7 +531,7 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 .chat-input input{
   flex:1;background:rgba(255,255,255,0.05);
   border:1px solid var(--glass-border);border-radius:var(--r-sm);
-  color:var(--text);font-size:13px;padding:9px 13px;outline:none;
+  color:var(--text);font-size:13.5px;padding:9px 13px;outline:none;
 }
 .chat-input input:focus{border-color:var(--glass-border2)}
 
@@ -415,7 +540,11 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 ═══════════════════════════════════════════ */
 .acopio-item,.damage-item{
   background:var(--glass-bg);border:1px solid var(--glass-border);
-  border-radius:var(--r-sm);padding:14px 16px;margin-bottom:8px;
+  border-radius:var(--r-sm);padding:14px 18px;margin-bottom:10px;
+  transition:border-color .15s, background .15s;
+}
+.acopio-item:hover,.damage-item:hover{
+  border-color:var(--glass-border2);background:rgba(255,255,255,0.06);
 }
 .need-tag{
   display:inline-block;font-size:10px;padding:3px 8px;border-radius:5px;
@@ -424,23 +553,72 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 }
 
 /* ═══════════════════════════════════════════
-   UTILS
+   UTILS & FILTERS Bar
 ═══════════════════════════════════════════ */
-.loading{display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:13px;padding:18px 0}
-.spin{width:15px;height:15px;border:2px solid var(--glass-border);border-top-color:var(--red);border-radius:50%;animation:rot .75s linear infinite}
+.loading{display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:13.5px;padding:18px 0}
+.spin{width:16px;height:16px;border:2px solid var(--glass-border);border-top-color:var(--red);border-radius:50%;animation:rot .75s linear infinite}
 @keyframes rot{to{transform:rotate(360deg)}}
-.empty{text-align:center;padding:32px;color:var(--text-muted);font-size:13px}
-.sbar{display:flex;gap:8px;margin-bottom:14px}
+.empty{text-align:center;padding:32px;color:var(--text-muted);font-size:13.5px}
+.sbar{display:flex;gap:8px;margin-bottom:10px}
 .sbar input{flex:1}
+.filter-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
 .divider{height:1px;background:var(--glass-border);margin:20px 0}
+
+/* Photo Modal Full Screen */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  padding-top: 80px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.92);
+  backdrop-filter: blur(8px);
+}
+.modal-content {
+  margin: auto;
+  display: block;
+  max-width: 90%;
+  max-height: 80vh;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+  animation: zoom 0.25s ease-out;
+}
+@keyframes zoom {
+  from {transform:scale(0.85); opacity:0} 
+  to {transform:scale(1); opacity:1}
+}
+.modal-close {
+  position: absolute;
+  top: 20px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  transition: 0.3s;
+  cursor: pointer;
+  user-select: none;
+}
+.modal-close:hover {
+  color: #ff3b3b;
+}
 
 /* ═══════════════════════════════════════════
    FOOTER
 ═══════════════════════════════════════════ */
 .footer{
-  text-align:center;padding:28px 16px;
-  color:var(--text-muted);font-size:11px;
-  border-top:1px solid var(--glass-border);margin-top:40px;
+  text-align:center;padding:32px 16px;
+  color:var(--text-muted);font-size:12px;
+  border-top:1px solid var(--glass-border);margin-top:48px;
 }
 .footer a{color:var(--text-sub);text-decoration:none}
 .footer strong{color:var(--text)}
@@ -448,22 +626,23 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 /* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
-@media(max-width:960px){
+@media(max-width:1024px){
   .nav-tabs{display:none}
   .nav-ham{display:block}
-  .page{padding:16px 16px 40px}
+  .page{padding:20px 20px 40px}
   .g2,.g3,.g4{grid-template-columns:1fr}
   .span2{grid-column:span 1}
   .frow{grid-template-columns:1fr}
-  .alert-banner{flex-direction:column;align-items:flex-start;gap:12px}
+  .alert-banner{flex-direction:column;align-items:flex-start;gap:14px}
   .alert-stats{width:100%;justify-content:space-between}
+  .card{margin-bottom:16px}
 }
 @media(max-width:520px){
   .emerg-grid{grid-template-columns:1fr 1fr}
-  .alert-stats{gap:10px}
-  .a-stat-val{font-size:16px}
-  .metric-val{font-size:32px}
-  .map-wrap,.map-wrap-tall{height:280px}
+  .alert-stats{gap:12px}
+  .a-stat-val{font-size:18px}
+  .metric-val{font-size:34px}
+  .map-wrap,.map-wrap-tall{height:320px}
 }
 </style>
 </head>
@@ -471,7 +650,7 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 
 <!-- ═══════════ NAV ═══════════ -->
 <nav>
-  <div class="nav-brand">
+  <div class="nav-brand" onclick="go('inicio')">
     <img src="./assets/logo-valkyron.png" alt="Valkyron" class="nav-logo-img"
          onerror="this.style.display='none';document.getElementById('vk-txt').style.display='block'">
     <span id="vk-txt" class="nav-logo-fallback" style="display:none">VALKYRON</span>
@@ -512,7 +691,7 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
   <button class="mob-tab"        onclick="go('acopio',this,true)">📦 Centros de acopio</button>
   <button class="mob-tab"        onclick="go('auxilios',this,true)">🏥 Primeros auxilios</button>
   <button class="mob-tab"        onclick="go('ia',this,true)">🤖 Asistente IA</button>
-  <a href="https://t.me/MIA_Valkyron_Bot" target="_blank" class="btn btn-green btn-sm" style="margin-top:8px">Abrir @MIA_Valkyron_Bot</a>
+  <a href="https://t.me/MIA_Valkyron_Bot" target="_blank" class="btn btn-green btn-sm" style="margin-top:12px; justify-content:center">Abrir @MIA_Valkyron_Bot</a>
 </div>
 
 <main>
@@ -577,28 +756,28 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 
   <div class="g3 mb18">
     <div class="card clickable" style="border-color:var(--red-b)" onclick="go('desap')">
-      <div style="font-size:30px;margin-bottom:10px">👤</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:0.08em;color:var(--red);margin-bottom:6px">REPORTAR DESAPARECIDO</div>
-      <div style="font-size:12px;color:var(--text-muted)">Registra o busca personas en la base de datos colaborativa</div>
+      <div style="font-size:32px;margin-bottom:10px">👤</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.08em;color:var(--red);margin-bottom:6px">REPORTAR DESAPARECIDO</div>
+      <div style="font-size:12.5px;color:var(--text-muted)">Registra o busca personas en la base de datos colaborativa</div>
     </div>
     <div class="card clickable" style="border-color:var(--or-b)" onclick="go('acopio')">
-      <div style="font-size:30px;margin-bottom:10px">📦</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:0.08em;color:var(--orange);margin-bottom:6px">CENTROS DE ACOPIO</div>
-      <div style="font-size:12px;color:var(--text-muted)">Ubica puntos activos o registra uno nuevo en tu zona</div>
+      <div style="font-size:32px;margin-bottom:10px">📦</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.08em;color:var(--orange);margin-bottom:6px">CENTROS DE ACOPIO</div>
+      <div style="font-size:12.5px;color:var(--text-muted)">Ubica puntos activos o registra uno nuevo en tu zona</div>
     </div>
     <div class="card clickable" style="border-color:var(--bl-b)" onclick="go('ia')">
-      <div style="font-size:30px;margin-bottom:10px">🤖</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:0.08em;color:var(--blue);margin-bottom:6px">ASISTENTE IA</div>
-      <div style="font-size:12px;color:var(--text-muted)">Pregúntale a MIA sobre primeros auxilios y evacuación</div>
+      <div style="font-size:32px;margin-bottom:10px">🤖</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.08em;color:var(--blue);margin-bottom:6px">ASISTENTE IA</div>
+      <div style="font-size:12.5px;color:var(--text-muted)">Pregúntale a MIA sobre primeros auxilios y evacuación</div>
     </div>
   </div>
 
   <div class="card" style="background:var(--gr-d);border-color:var(--gr-b)">
     <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-      <div style="font-size:26px">💬</div>
+      <div style="font-size:28px">💬</div>
       <div style="flex:1;min-width:200px">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.1em;color:var(--green)">@MIA_VALKYRON_BOT — FUNCIONA SIN WIFI</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:3px">Reporta desaparecidos y recibe guías de primeros auxilios solo con datos móviles. Ideal para zonas sin internet.</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.1em;color:var(--green)">@MIA_VALKYRON_BOT — FUNCIONA SIN WIFI</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:3px">Reporta desaparecidos y recibe guías de primeros auxilios solo con datos móviles. Ideal para zonas sin internet.</div>
       </div>
       <a href="https://t.me/MIA_Valkyron_Bot" target="_blank" class="btn btn-green" style="flex-shrink:0">Abrir en Telegram</a>
     </div>
@@ -607,7 +786,7 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
   <div class="footer">
     Desarrollado con 🇻🇪 por <strong>Valkyron Group</strong> · Barquisimeto, Venezuela ·
     <a href="https://t.me/MIA_Valkyron_Bot">@MIA_Valkyron_Bot</a><br>
-    <span style="font-size:10px;margin-top:4px;display:block">Plataforma sin fines de lucro. Datos colaborativos — verificar antes de actuar.</span>
+    <span style="font-size:11px;margin-top:4px;display:block">Plataforma sin fines de lucro. Datos colaborativos — verificar antes de actuar.</span>
   </div>
 </div>
 
@@ -623,24 +802,62 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
       <div class="frow">
         <div class="fg"><label>Último lugar visto *</label><input id="f-lugar" type="text" placeholder="Catia La Mar, La Guaira"></div>
         <div class="fg"><label>Estado</label>
-          <select id="f-estado"><option value="">Seleccionar</option><option>La Guaira (Vargas)</option><option>Caracas</option><option>Yaracuy</option><option>Carabobo</option><option>Miranda</option><option>Aragua</option><option>Falcón</option><option>Lara</option><option>Otro</option></select>
+          <select id="f-estado" onchange="handleStateChangeForForm('f', this)"><option value="">Seleccionar</option><option>La Guaira (Vargas)</option><option>Caracas</option><option>Yaracuy</option><option>Carabobo</option><option>Miranda</option><option>Aragua</option><option>Falcón</option><option>Lara</option><option>Otro</option></select>
         </div>
       </div>
       <div class="frow">
         <div class="fg"><label>Teléfono de contacto *</label><input id="f-tel" type="tel" placeholder="+58 4XX XXXXXXX"></div>
         <div class="fg"><label>Descripción física</label><input id="f-desc" type="text" placeholder="Ropa, señas particulares"></div>
       </div>
-      <div class="fg"><label>Notas adicionales</label><textarea id="f-notas" placeholder="¿Dónde estaba cuando ocurrió el sismo? ¿Tiene condición médica?"></textarea></div>
+      <div class="fg"><label>Notas adicionales / Condiciones Médicas</label><textarea id="f-notas" placeholder="¿Dónde estaba cuando ocurrió el sismo? ¿Tiene diabetes, asma, hipertensión o requiere medicina urgente?"></textarea></div>
+      
+      <!-- Mini-map coordinates picker for Desaparecidos -->
+      <div class="frow">
+        <div class="fg"><label>Latitud *</label><input id="f-lat" type="text" readonly></div>
+        <div class="fg"><label>Longitud *</label><input id="f-lng" type="text" readonly></div>
+      </div>
+      <div class="fg">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+          <label>📍 Ubicación exacta</label>
+          <button class="btn btn-ghost btn-sm" type="button" onclick="getLocationForForm('f')">Obtener GPS</button>
+        </div>
+        <div class="form-minimap-wrap">
+          <div id="f-minimap" class="form-minimap"></div>
+        </div>
+      </div>
+
+      <!-- Photo Upload for Desaparecidos -->
+      <div class="fg">
+        <label>📷 Foto de la persona</label>
+        <div class="photo-upload-container">
+          <label class="photo-upload-label">
+            <span>Subir imagen o tomar foto</span>
+            <input type="file" id="f-foto-in" accept="image/*" style="display:none" onchange="processImage(this, 'f')">
+          </label>
+          <div id="f-foto-preview-container" class="photo-preview-container" style="display:none">
+            <img id="f-foto-preview" class="photo-preview-img" src="" alt="Previsualización">
+            <button type="button" class="photo-remove-btn" onclick="clearPhoto('f')">✕ Eliminar</button>
+          </div>
+        </div>
+      </div>
+
       <button class="btn btn-red btn-full" onclick="reportarDesap()">🚨 Publicar Reporte</button>
-      <div id="desap-msg" style="margin-top:8px;font-size:12px;text-align:center"></div>
+      <div id="desap-msg" style="margin-top:8px;font-size:12.5px;text-align:center"></div>
     </div>
 
     <div class="card">
       <div class="card-head"><span class="card-label">🔍 Buscar persona</span><span class="chip chip-blue">BASE DE DATOS</span></div>
       <div class="sbar">
-        <input style="flex:1;padding:9px 13px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:var(--r-sm);color:var(--text);font-size:13px;outline:none"
-          id="buscar" placeholder="Nombre, lugar, estado..." oninput="buscarDesap()">
+        <input style="flex:1;padding:9px 13px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:var(--r-sm);color:var(--text);font-size:13.5px;outline:none"
+          id="buscar" placeholder="Nombre, lugar, descripción..." oninput="buscarDesap()">
         <button class="btn btn-ghost btn-sm" onclick="buscarDesap()">Buscar</button>
+      </div>
+      <!-- Advanced Filters for Desaparecidos -->
+      <div class="filter-row">
+        <select id="filtro-f-estado" onchange="buscarDesap()"><option value="">Todos los Estados</option><option>La Guaira (Vargas)</option><option>Caracas</option><option>Yaracuy</option><option>Carabobo</option><option>Miranda</option><option>Aragua</option><option>Falcón</option><option>Lara</option><option>Otro</option></select>
+        <select id="filtro-f-fecha" onchange="buscarDesap()"><option value="">Cualquier fecha</option><option value="hoy">Hoy</option><option value="3dias">Últimos 3 días</option><option value="semana">Última semana</option></select>
+        <select id="filtro-f-radio" onchange="handleRadiusFilter('f', this)"><option value="">Cualquier distancia</option><option value="5">A menos de 5 km</option><option value="15">A menos de 15 km</option><option value="50">A menos de 50 km</option></select>
+        <label class="check-item"><input type="checkbox" id="filtro-f-prioridad" onchange="buscarDesap()"> Críticos</label>
       </div>
       <div id="lista-desap" class="list"><div class="loading"><div class="spin"></div>Cargando reportes...</div></div>
     </div>
@@ -648,7 +865,7 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
   <div class="card">
     <div class="card-head"><span class="card-label">🗺️ Mapa de desaparecidos</span><span class="chip chip-red">TIEMPO REAL</span></div>
     <div class="map-wrap" id="map-desap"></div>
-    <div style="margin-top:10px;font-size:11px;color:var(--text-muted)">⚠️ Coordenadas aproximadas por estado. Clic en el marcador para ver detalles y teléfono de contacto.</div>
+    <div style="margin-top:10px;font-size:11px;color:var(--text-muted)">⚠️ Coordenadas de alta precisión (GPS) o selección manual. Clic en el marcador para ver detalles, fotos y teléfono de contacto.</div>
   </div>
 </div>
 
@@ -687,13 +904,13 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
       <div class="card-head"><span class="card-label">🗺️ Mapa sísmico</span><span class="chip chip-blue">VIVO</span></div>
       <div class="map-wrap-tall" id="map-rep"></div>
       <div style="margin-top:12px">
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-family:'Share Tech Mono',monospace;letter-spacing:0.06em">MAGNITUD</div>
+        <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:8px;font-family:'Share Tech Mono',monospace;letter-spacing:0.06em">MAGNITUD</div>
         <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
-          <span style="font-size:11px;color:#3b9eff">● &lt;2.0</span>
-          <span style="font-size:11px;color:#22c55e">● 2.0–3.9</span>
-          <span style="font-size:11px;color:#eab308">● 4.0–4.9</span>
-          <span style="font-size:11px;color:var(--orange)">● 5.0–5.9</span>
-          <span style="font-size:11px;color:var(--red)">● 6.0+</span>
+          <span style="font-size:11.5px;color:#3b9eff">● &lt;2.0</span>
+          <span style="font-size:11.5px;color:#22c55e">● 2.0–3.9</span>
+          <span style="font-size:11.5px;color:#eab308">● 4.0–4.9</span>
+          <span style="font-size:11.5px;color:var(--orange)">● 5.0–5.9</span>
+          <span style="font-size:11.5px;color:var(--red)">● 6.0+</span>
         </div>
         <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">El tamaño del círculo es proporcional a la magnitud. Clic para detalles.</div>
       </div>
@@ -708,7 +925,7 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
       <div class="card-head"><span class="card-label">🏚️ Reportar daño estructural</span><span class="chip chip-orange">CIUDADANOS</span></div>
       <div class="fg"><label>Dirección / Ubicación *</label><input id="d-ubi" type="text" placeholder="Av., calle, edificio, urbanización"></div>
       <div class="frow">
-        <div class="fg"><label>Estado</label><select id="d-estado"><option value="">Seleccionar</option><option>La Guaira (Vargas)</option><option>Caracas</option><option>Yaracuy</option><option>Carabobo</option><option>Miranda</option><option>Aragua</option><option>Otro</option></select></div>
+        <div class="fg"><label>Estado</label><select id="d-estado" onchange="handleStateChangeForForm('d', this)"><option value="">Seleccionar</option><option>La Guaira (Vargas)</option><option>Caracas</option><option>Yaracuy</option><option>Carabobo</option><option>Miranda</option><option>Aragua</option><option>Otro</option></select></div>
         <div class="fg"><label>Nivel de daño</label><select id="d-nivel"><option value="">Seleccionar</option><option value="leve">🟡 Leve</option><option value="moderado">🟠 Moderado</option><option value="grave">🔴 Grave</option><option value="total">⛔ Colapso total</option></select></div>
       </div>
       <div class="frow">
@@ -717,11 +934,55 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
       </div>
       <div class="fg"><label>Descripción del daño</label><textarea id="d-desc" placeholder="Describe lo que observas: grietas, derrumbes, personas atrapadas..."></textarea></div>
       <div class="fg"><label>Teléfono de contacto</label><input id="d-tel" type="tel" placeholder="+58 4XX..."></div>
+      
+      <!-- Mini-map coordinates picker for Daños -->
+      <div class="frow">
+        <div class="fg"><label>Latitud *</label><input id="d-lat" type="text" readonly></div>
+        <div class="fg"><label>Longitud *</label><input id="d-lng" type="text" readonly></div>
+      </div>
+      <div class="fg">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+          <label>📍 Ubicación exacta</label>
+          <button class="btn btn-ghost btn-sm" type="button" onclick="getLocationForForm('d')">Obtener GPS</button>
+        </div>
+        <div class="form-minimap-wrap">
+          <div id="d-minimap" class="form-minimap"></div>
+        </div>
+      </div>
+
+      <!-- Photo Upload for Daños -->
+      <div class="fg">
+        <label>📷 Foto del daño</label>
+        <div class="photo-upload-container">
+          <label class="photo-upload-label">
+            <span>Subir imagen o tomar foto</span>
+            <input type="file" id="d-foto-in" accept="image/*" style="display:none" onchange="processImage(this, 'd')">
+          </label>
+          <div id="d-foto-preview-container" class="photo-preview-container" style="display:none">
+            <img id="d-foto-preview" class="photo-preview-img" src="" alt="Previsualización">
+            <button type="button" class="photo-remove-btn" onclick="clearPhoto('d')">✕ Eliminar</button>
+          </div>
+        </div>
+      </div>
+
       <button class="btn btn-orange btn-full" onclick="reportarDano()">📍 Publicar Reporte de Daño</button>
-      <div id="dano-msg" style="margin-top:8px;font-size:12px;text-align:center"></div>
+      <div id="dano-msg" style="margin-top:8px;font-size:12.5px;text-align:center"></div>
     </div>
+
     <div class="card">
       <div class="card-head"><span class="card-label">📋 Reportes registrados</span><span class="chip chip-orange">COMUNIDAD</span></div>
+      <div class="sbar">
+        <input style="flex:1;padding:9px 13px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:var(--r-sm);color:var(--text);font-size:13.5px;outline:none"
+          id="buscar-d" placeholder="Buscar daños, dirección..." oninput="filtrarDanos()">
+      </div>
+      <!-- Filters for Daños -->
+      <div class="filter-row">
+        <select id="filtro-d-estado" onchange="filtrarDanos()"><option value="">Todos los Estados</option><option>La Guaira (Vargas)</option><option>Caracas</option><option>Yaracuy</option><option>Carabobo</option><option>Miranda</option><option>Aragua</option><option>Otro</option></select>
+        <select id="filtro-d-nivel" onchange="filtrarDanos()"><option value="">Todos los Niveles</option><option value="leve">Leve</option><option value="moderado">Moderado</option><option value="grave">Grave</option><option value="total">Colapso total</option></select>
+        <select id="filtro-d-atrapados" onchange="filtrarDanos()"><option value="">Atrapados: Todos</option><option value="si">Sí (Urgente)</option><option value="no">No</option><option value="desconocido">Desconocido</option></select>
+        <select id="filtro-d-fecha" onchange="filtrarDanos()"><option value="">Cualquier fecha</option><option value="hoy">Hoy</option><option value="3dias">Últimos 3 días</option><option value="semana">Última semana</option></select>
+        <select id="filtro-d-radio" onchange="handleRadiusFilter('d', this)"><option value="">Cualquier distancia</option><option value="5">A menos de 5 km</option><option value="15">A menos de 15 km</option><option value="50">A menos de 50 km</option></select>
+      </div>
       <div id="lista-danos" class="list"><div class="loading"><div class="spin"></div>Cargando...</div></div>
     </div>
   </div>
@@ -733,13 +994,13 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 
 <!-- ═══════════ ACOPIO ═══════════ -->
 <div class="page" id="page-acopio">
-  <div class="g2">
+  <div class="g2 mb18">
     <div class="card">
       <div class="card-head"><span class="card-label">📦 Registrar centro de acopio</span><span class="chip chip-green">REGISTRO</span></div>
       <div class="fg"><label>Nombre del centro *</label><input id="ac-nom" type="text" placeholder="Centro Comunitario Catia La Mar"></div>
       <div class="fg"><label>Dirección completa *</label><input id="ac-dir" type="text" placeholder="Dirección exacta"></div>
       <div class="frow">
-        <div class="fg"><label>Estado</label><select id="ac-estado"><option value="">Seleccionar</option><option>La Guaira (Vargas)</option><option>Caracas</option><option>Yaracuy</option><option>Carabobo</option><option>Miranda</option><option>Barquisimeto (Lara)</option><option>Maracay (Aragua)</option><option>Otro</option></select></div>
+        <div class="fg"><label>Estado</label><select id="ac-estado" onchange="handleStateChangeForForm('ac', this)"><option value="">Seleccionar</option><option>La Guaira (Vargas)</option><option>Caracas</option><option>Yaracuy</option><option>Carabobo</option><option>Miranda</option><option>Barquisimeto (Lara)</option><option>Maracay (Aragua)</option><option>Otro</option></select></div>
         <div class="fg"><label>Estado del centro</label><select id="ac-status"><option value="activo">✅ Activo</option><option value="lleno">⚠️ Lleno</option><option value="bloqueado">🚫 Bloqueado</option></select></div>
       </div>
       <div class="fg"><label>¿Qué necesitan?</label>
@@ -754,13 +1015,60 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
         </div>
       </div>
       <div class="fg"><label>Contacto</label><input id="ac-contacto" type="text" placeholder="+58 4XX... o @instagram"></div>
+      
+      <!-- Mini-map coordinates picker for Acopio -->
+      <div class="frow">
+        <div class="fg"><label>Latitud *</label><input id="ac-lat" type="text" readonly></div>
+        <div class="fg"><label>Longitud *</label><input id="ac-lng" type="text" readonly></div>
+      </div>
+      <div class="fg">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+          <label>📍 Ubicación exacta</label>
+          <button class="btn btn-ghost btn-sm" type="button" onclick="getLocationForForm('ac')">Obtener GPS</button>
+        </div>
+        <div class="form-minimap-wrap">
+          <div id="ac-minimap" class="form-minimap"></div>
+        </div>
+      </div>
+
+      <!-- Photo Upload for Acopio -->
+      <div class="fg">
+        <label>📷 Foto del Centro de Acopio</label>
+        <div class="photo-upload-container">
+          <label class="photo-upload-label">
+            <span>Subir imagen o tomar foto</span>
+            <input type="file" id="ac-foto-in" accept="image/*" style="display:none" onchange="processImage(this, 'ac')">
+          </label>
+          <div id="ac-foto-preview-container" class="photo-preview-container" style="display:none">
+            <img id="ac-foto-preview" class="photo-preview-img" src="" alt="Previsualización">
+            <button type="button" class="photo-remove-btn" onclick="clearPhoto('ac')">✕ Eliminar</button>
+          </div>
+        </div>
+      </div>
+
       <button class="btn btn-green btn-full" onclick="reportarAcopio()">📍 Registrar Centro</button>
-      <div id="acopio-msg" style="margin-top:8px;font-size:12px;text-align:center"></div>
+      <div id="acopio-msg" style="margin-top:8px;font-size:12.5px;text-align:center"></div>
     </div>
     <div class="card">
       <div class="card-head"><span class="card-label">📋 Centros registrados</span><span class="chip chip-green">COMUNIDAD</span></div>
+      <div class="sbar">
+        <input style="flex:1;padding:9px 13px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:var(--r-sm);color:var(--text);font-size:13.5px;outline:none"
+          id="buscar-ac" placeholder="Buscar centros por nombre..." oninput="filtrarAcopios()">
+      </div>
+      <!-- Filters for Acopio -->
+      <div class="filter-row">
+        <select id="filtro-ac-estado" onchange="filtrarAcopios()"><option value="">Todos los Estados</option><option>La Guaira (Vargas)</option><option>Caracas</option><option>Yaracuy</option><option>Carabobo</option><option>Miranda</option><option>Barquisimeto (Lara)</option><option>Maracay (Aragua)</option><option>Otro</option></select>
+        <select id="filtro-ac-status" onchange="filtrarAcopios()"><option value="">Todos los Estatus</option><option value="activo">✅ Activo</option><option value="lleno">⚠️ Lleno</option><option value="bloqueado">🚫 Bloqueado</option></select>
+        <select id="filtro-ac-necesidad" onchange="filtrarAcopios()"><option value="">Necesidad</option><option value="agua">Agua</option><option value="alimentos">Alimentos</option><option value="medicina">Medicinas</option><option value="ropa">Ropa</option><option value="frazadas">Frazadas</option><option value="higiene">Higiene</option><option value="voluntarios">Voluntarios</option></select>
+        <select id="filtro-ac-radio" onchange="handleRadiusFilter('ac', this)"><option value="">Cualquier distancia</option><option value="5">A menos de 5 km</option><option value="15">A menos de 15 km</option><option value="50">A menos de 50 km</option></select>
+      </div>
       <div id="lista-acopios" class="list"><div class="loading"><div class="spin"></div>Cargando...</div></div>
     </div>
+  </div>
+  <!-- Map for Acopio -->
+  <div class="card">
+    <div class="card-head"><span class="card-label">🗺️ Mapa de centros de acopio</span><span class="chip chip-green">TIEMPO REAL</span></div>
+    <div class="map-wrap" id="map-acopio"></div>
   </div>
 </div>
 
@@ -872,6 +1180,12 @@ main{padding-top:58px;position:relative;z-index:1;min-height:100vh}
 
 </main>
 
+<!-- Full Screen Image Modal -->
+<div id="photo-modal" class="modal-overlay" onclick="closePhotoModal()">
+  <span class="modal-close" onclick="closePhotoModal()">&times;</span>
+  <img id="photo-modal-img" class="modal-content" src="" alt="Foto completa" onclick="event.stopPropagation()">
+</div>
+
 <script>
 // ══════════════════════════════
 // CONFIG
@@ -894,11 +1208,21 @@ const COORDS = {
   'Miranda':            {lat:10.25,lng:-66.43},
   'Aragua':             {lat:10.06,lng:-67.27},
   'Falcón':             {lat:11.40,lng:-69.67},
+  'Lara':               {lat:10.07,lng:-69.32},
   'Barquisimeto (Lara)':{lat:10.07,lng:-69.32},
   'Maracay (Aragua)':   {lat:10.24,lng:-67.59},
+  'Otro':               {lat:10.48,lng:-66.90}
 };
-function jitter(c){ return {lat:c.lat+(Math.random()-.5)*.25, lng:c.lng+(Math.random()-.5)*.25} }
+function jitter(c){ return {lat:c.lat+(Math.random()-.5)*.06, lng:c.lng+(Math.random()-.5)*.06} }
 function coord(estado){ const c=COORDS[estado]; return c?jitter(c):{lat:9.5+Math.random()*2,lng:-68+Math.random()*2} }
+
+// ══════════════════════════════
+// GLOBAL DATA & FILTERS
+// ══════════════════════════════
+let userCoords = null;
+let desapData = [];
+let danosData = [];
+let acopiosData = [];
 
 // ══════════════════════════════
 // NAV — con persistencia de tab
@@ -908,6 +1232,7 @@ const TABS = ['inicio','ia','desap','replicas','danos','acopio','auxilios'];
 function go(id, btn, fromDrawer=false){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
+  
   // sync todos los botones
   document.querySelectorAll('.nav-tab').forEach(t=>{
     t.classList.toggle('active', t.getAttribute('onclick')?.includes(`'${id}'`));
@@ -918,9 +1243,29 @@ function go(id, btn, fromDrawer=false){
   if(fromDrawer) toggleDrawer();
   window.scrollTo(0,0);
   sessionStorage.setItem('tab', id);
-  // init lazy
-  if(id==='replicas' && !repInit) initReplicas();
-  if(id==='danos'    && !danoInit) initDanos();
+  
+  // init lazy & force invalidateSize
+  setTimeout(() => {
+    if(id==='desap') {
+      if(!mapDesInit) initDesap();
+      if(mapDes) mapDes.invalidateSize();
+      if(formMaps.f) formMaps.f.invalidateSize();
+    }
+    if(id==='danos') {
+      if(!danoInit) initDanos();
+      if(mapDan) mapDan.invalidateSize();
+      if(formMaps.d) formMaps.d.invalidateSize();
+    }
+    if(id==='acopio') {
+      if(!acopioMapInit) initAcopioMap();
+      if(mapAcopio) mapAcopio.invalidateSize();
+      if(formMaps.ac) formMaps.ac.invalidateSize();
+    }
+    if(id==='replicas') {
+      if(!repInit) initReplicas();
+      if(mapRep) mapRep.invalidateSize();
+    }
+  }, 100);
 }
 
 function toggleDrawer(){
@@ -957,6 +1302,287 @@ function fmtTime(ts){
   const d=new Date(ts);
   return d.toLocaleString('es-VE',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
 }
+function getDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+// Recentro automático en rotación de pantalla
+window.addEventListener('resize', () => {
+  if (mapDes) mapDes.invalidateSize();
+  if (mapDan) mapDan.invalidateSize();
+  if (mapRep) mapRep.invalidateSize();
+  if (mapAcopio) mapAcopio.invalidateSize();
+  for (let key in formMaps) {
+    if (formMaps[key]) formMaps[key].invalidateSize();
+  }
+});
+
+// ══════════════════════════════
+// MAPAS EN FORMULARIOS (PIN MANUAL & GPS)
+// ══════════════════════════════
+let formMaps = { f: null, d: null, ac: null };
+let formMarkers = { f: null, d: null, ac: null };
+
+function initFormMap(type, markerColor) {
+  const containerId = type + '-minimap';
+  const latId = type + '-lat';
+  const lngId = type + '-lng';
+  
+  if (formMaps[type]) return; // Ya inicializado
+  
+  const defaultLat = 10.48;
+  const defaultLng = -66.90;
+  
+  document.getElementById(latId).value = defaultLat.toFixed(5);
+  document.getElementById(lngId).value = defaultLng.toFixed(5);
+  
+  const map = L.map(containerId).setView([defaultLat, defaultLng], 6);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© CARTO',
+    maxZoom: 18
+  }).addTo(map);
+  
+  const marker = L.marker([defaultLat, defaultLng], {
+    draggable: true
+  }).addTo(map);
+  
+  marker.on('dragend', function() {
+    const latlng = marker.getLatLng();
+    document.getElementById(latId).value = latlng.lat.toFixed(5);
+    document.getElementById(lngId).value = latlng.lng.toFixed(5);
+  });
+  
+  map.on('click', function(e) {
+    marker.setLatLng(e.latlng);
+    document.getElementById(latId).value = e.latlng.lat.toFixed(5);
+    document.getElementById(lngId).value = e.latlng.lng.toFixed(5);
+  });
+  
+  formMaps[type] = map;
+  formMarkers[type] = marker;
+}
+
+function updateFormMapFromCoords(type, lat, lng) {
+  const map = formMaps[type];
+  const marker = formMarkers[type];
+  if (!map || !marker) return;
+  
+  const latlng = L.latLng(lat, lng);
+  marker.setLatLng(latlng);
+  map.setView(latlng, 13);
+  
+  document.getElementById(type + '-lat').value = lat.toFixed(5);
+  document.getElementById(type + '-lng').value = lng.toFixed(5);
+}
+
+function getLocationForForm(type) {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        updateFormMapFromCoords(type, lat, lng);
+      },
+      (err) => {
+        alert("GPS no disponible. Selecciona la ubicación en el mapa haciendo clic.");
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  } else {
+    alert("Geolocalización no soportada por el navegador.");
+  }
+}
+
+function handleStateChangeForForm(type, selectEl) {
+  const estado = selectEl.value;
+  const c = COORDS[estado];
+  if (c) {
+    const jc = jitter(c);
+    updateFormMapFromCoords(type, jc.lat, jc.lng);
+  }
+}
+
+// ══════════════════════════════
+// COMPRESIÓN DE IMÁGENES EN CLIENTE
+// ══════════════════════════════
+let formPhotos = { f: null, d: null, ac: null };
+
+function processImage(input, formType) {
+  const file = input.files[0];
+  if (!file) return;
+  
+  if (file.size > 5 * 1024 * 1024) {
+    alert("La imagen excede el límite de 5MB");
+    input.value = '';
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.src = e.target.result;
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      
+      const MAX_SIZE = 800;
+      if (width > height) {
+        if (width > MAX_SIZE) {
+          height = Math.round((height * MAX_SIZE) / width);
+          width = MAX_SIZE;
+        }
+      } else {
+        if (height > MAX_SIZE) {
+          width = Math.round((width * MAX_SIZE) / height);
+          height = MAX_SIZE;
+        }
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+      formPhotos[formType] = compressedDataUrl;
+      
+      document.getElementById(formType + '-foto-preview').src = compressedDataUrl;
+      document.getElementById(formType + '-foto-preview-container').style.display = 'block';
+    };
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPhoto(formType) {
+  formPhotos[formType] = null;
+  const fileIn = document.getElementById(formType + '-foto-in');
+  if (fileIn) fileIn.value = '';
+  const previewContainer = document.getElementById(formType + '-foto-preview-container');
+  if (previewContainer) previewContainer.style.display = 'none';
+}
+
+function viewFullPhoto(src) {
+  const modal = document.getElementById('photo-modal');
+  const modalImg = document.getElementById('photo-modal-img');
+  modal.style.display = "block";
+  modalImg.src = src;
+}
+function closePhotoModal() {
+  document.getElementById('photo-modal').style.display = "none";
+}
+
+// ══════════════════════════════
+// RADIUS FILTER GEOLOCATION
+// ══════════════════════════════
+function requestUserCoords(callback) {
+  if (userCoords) {
+    if (callback) callback();
+    return;
+  }
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        userCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        if (callback) callback();
+      },
+      (err) => {
+        alert("Permiso de GPS denegado o no disponible. No se pueden aplicar filtros por radio.");
+      },
+      { enableHighAccuracy: false, timeout: 6000 }
+    );
+  } else {
+    alert("Geolocalización no soportada.");
+  }
+}
+
+function handleRadiusFilter(type, selectEl) {
+  if (selectEl.value) {
+    requestUserCoords(() => {
+      if (type === 'f') buscarDesap();
+      if (type === 'd') filtrarDanos();
+      if (type === 'ac') filtrarAcopios();
+    });
+  } else {
+    if (type === 'f') buscarDesap();
+    if (type === 'd') filtrarDanos();
+    if (type === 'ac') filtrarAcopios();
+  }
+}
+
+// ══════════════════════════════
+// SHARING & HIGHLIGHT
+// ══════════════════════════════
+function shareReport(tab, id, event) {
+  if (event) event.stopPropagation();
+  const shareUrl = `${window.location.origin}${window.location.pathname}#tab=${tab}&id=${id}`;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      alert("¡Enlace del reporte copiado al portapapeles!");
+    }).catch(err => {
+      alert("Enlace: " + shareUrl);
+    });
+  } else {
+    alert("Enlace para compartir:\n" + shareUrl);
+  }
+}
+
+function handleSharingLink() {
+  const hash = window.location.hash;
+  if (!hash) return;
+  const params = new URLSearchParams(hash.substring(1));
+  const tab = params.get('tab');
+  const id = params.get('id');
+  
+  if (tab && TABS.includes(tab)) {
+    go(tab, null, false);
+    if (id) {
+      setTimeout(() => {
+        highlightReport(tab, id);
+      }, 1500);
+    }
+  }
+}
+
+function highlightReport(tab, id) {
+  const listElId = `${tab}-item-${id}`;
+  const el = document.getElementById(listElId);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.add('report-highlight');
+    setTimeout(() => el.classList.remove('report-highlight'), 5000);
+  }
+  
+  let mapObj = null;
+  let clusterObj = null;
+  if (tab === 'desap') { mapObj = mapDes; clusterObj = clusterDesap; }
+  else if (tab === 'danos') { mapObj = mapDan; clusterObj = clusterDanos; }
+  else if (tab === 'acopio') { mapObj = mapAcopio; clusterObj = clusterAcopios; }
+
+  if (mapObj && clusterObj) {
+    clusterObj.eachLayer(marker => {
+      if (marker._reportId == id) {
+        if (clusterObj.zoomToShowLayer) {
+          clusterObj.zoomToShowLayer(marker, () => {
+            marker.openPopup();
+            mapObj.setView(marker.getLatLng(), 15);
+          });
+        } else {
+          marker.openPopup();
+          mapObj.setView(marker.getLatLng(), 15);
+        }
+      }
+    });
+  }
+}
 
 // ══════════════════════════════
 // DASHBOARD
@@ -992,52 +1618,159 @@ async function dashboard(){
 // DESAPARECIDOS
 // ══════════════════════════════
 let mapDes=null, mapDesInit=false;
+let clusterDesap=null;
 
 async function cargarDesap(q=''){
   const el=document.getElementById('lista-desap');
   el.innerHTML='<div class="loading"><div class="spin"></div>Cargando...</div>';
+  
   let qry=sb.from('desaparecidos').select('*').order('created_at',{ascending:false});
-  if(q) qry=qry.ilike('nombre',`%${q}%`);
   const {data,error}=await qry;
   if(error||!data){el.innerHTML='<div class="empty">Error al cargar datos</div>';return;}
-  if(!data.length){el.innerHTML='<div class="empty">Sin resultados</div>';return;}
-  el.innerHTML=data.map(d=>`
-    <div class="list-item">
+  desapData = data;
+  filtrarYRenderizarDesap(q);
+}
+
+function buscarDesap() {
+  filtrarYRenderizarDesap(document.getElementById('buscar').value);
+}
+
+function filtrarYRenderizarDesap(q = '') {
+  const el = document.getElementById('lista-desap');
+  const query = q.trim().toLowerCase();
+  
+  const estadoFilter = document.getElementById('filtro-f-estado').value;
+  const fechaFilter = document.getElementById('filtro-f-fecha').value;
+  const radioFilter = document.getElementById('filtro-f-radio').value;
+  const criticoFilter = document.getElementById('filtro-f-prioridad').checked;
+  
+  let filtered = desapData.filter(d => {
+    // Búsqueda de texto
+    const matchText = !query || 
+      d.nombre.toLowerCase().includes(query) || 
+      d.lugar.toLowerCase().includes(query) || 
+      (d.descripcion && d.descripcion.toLowerCase().includes(query));
+      
+    // Estado
+    const matchEstado = !estadoFilter || d.estado === estadoFilter;
+    
+    // Fecha
+    let matchFecha = true;
+    if (fechaFilter && d.created_at) {
+      const ms = Date.now() - new Date(d.created_at).getTime();
+      if (fechaFilter === 'hoy') matchFecha = ms <= 24*3600*1000;
+      else if (fechaFilter === '3dias') matchFecha = ms <= 3*24*3600*1000;
+      else if (fechaFilter === 'semana') matchFecha = ms <= 7*24*3600*1000;
+    }
+    
+    // Prioridad Crítica (Niños, ancianos, o notas de salud críticas)
+    const isCritical = d.edad !== null && (d.edad <= 12 || d.edad >= 70) || (d.notas && /diabetes|hiperten|asma|cardiac|medic|alergia/i.test(d.notas));
+    const matchPrioridad = !criticoFilter || isCritical;
+    
+    // Radio / Distancia
+    let matchRadio = true;
+    if (radioFilter && userCoords && d.lat && d.lng) {
+      const dist = getDistance(userCoords.lat, userCoords.lng, d.lat, d.lng);
+      matchRadio = dist <= parseFloat(radioFilter);
+    }
+    
+    return matchText && matchEstado && matchFecha && matchPrioridad && matchRadio;
+  });
+  
+  // Ordenar priorizando los críticos primero en las personas buscadas
+  filtered.sort((a, b) => {
+    const aCritical = a.edad !== null && (a.edad <= 12 || a.edad >= 70) || (a.notas && /diabetes|hiperten|asma|cardiac|medic/i.test(a.notas));
+    const bCritical = b.edad !== null && (b.edad <= 12 || b.edad >= 70) || (b.notas && /diabetes|hiperten|asma|cardiac|medic/i.test(b.notas));
+    if (aCritical && !bCritical) return -1;
+    if (!aCritical && bCritical) return 1;
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
+
+  if(!filtered.length){el.innerHTML='<div class="empty">Sin resultados</div>';return;}
+  
+  el.innerHTML = filtered.map(d => {
+    const isCritical = d.edad !== null && (d.edad <= 12 || d.edad >= 70) || (d.notas && /diabetes|hiperten|asma|cardiac|medic/i.test(d.notas));
+    return `
+    <div class="list-item ${isCritical ? 'priority-critical' : ''}" id="desap-item-${d.id}">
       <div style="flex:1;min-width:0">
-        <div class="li-name">${d.nombre}${d.edad?`, ${d.edad} años`:''}</div>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+          <div class="li-name">${d.nombre}${d.edad?`, ${d.edad} años`:''}</div>
+          ${isCritical ? '<span class="chip chip-red" style="font-size:8px; padding:2px 6px">ALTA PRIORIDAD</span>' : ''}
+        </div>
         <div class="li-meta">📍 ${d.lugar}${d.estado?' · '+d.estado:''}</div>
         <div class="li-meta">☎️ ${d.telefono}</div>
-        ${d.descripcion?`<div class="li-meta" style="color:var(--text-sub)">${d.descripcion}</div>`:''}
+        ${d.descripcion?`<div class="li-meta" style="color:var(--text-sub)">Físico: ${d.descripcion}</div>`:''}
+        ${d.notas?`<div class="li-meta" style="color:var(--gold)">Condición: ${d.notas}</div>`:''}
+        <div class="li-meta" style="font-size:10px; color:var(--text-muted)">Reporte: REF-F${d.id} · ${fmtTime(d.created_at)}</div>
+        
+        <div style="display:flex;gap:6px;margin-top:8px; flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:4px 8px" onclick="shareReport('desap', ${d.id}, event)">🔗 Compartir</button>
+          ${d.lat && d.lng ? `
+            <a href="https://www.google.com/maps/search/?api=1&query=${d.lat},${d.lng}" target="_blank" class="btn btn-ghost btn-sm" style="font-size:10px;padding:4px 8px">🗺️ Google Maps</a>
+            <a href="https://waze.com/ul?ll=${d.lat},${d.lng}&navigate=yes" target="_blank" class="btn btn-ghost btn-sm" style="font-size:10px;padding:4px 8px">🧭 Waze</a>
+          ` : ''}
+        </div>
       </div>
       <div class="li-right">
         <span class="${d.status==='encontrado'?'tag-encontrado':'tag-buscado'}">${d.status==='encontrado'?'✅ ENCONTRADO':'🔴 BUSCADO'}</span>
-        ${d.status==='buscado'?`<button class="btn btn-ghost btn-sm" style="font-size:10px;padding:4px 10px" onclick="encontrado(${d.id})">Marcar encontrado</button>`:''}
+        ${d.foto ? `
+          <div class="li-photo-wrapper" onclick="viewFullPhoto('${d.foto}')">
+            <img src="${d.foto}" class="li-photo">
+          </div>` : ''}
+        ${d.status==='buscado'?`<button class="btn btn-ghost btn-sm" style="font-size:10px;padding:4px 10px; margin-top:8px" onclick="encontrado(${d.id})">Marcar encontrado</button>`:''}
       </div>
-    </div>`).join('');
-  updateDesapMap(data);
+    </div>`;
+  }).join('');
+  
+  updateDesapMap(filtered);
 }
-
-function buscarDesap(){ cargarDesap(document.getElementById('buscar').value) }
 
 async function reportarDesap(){
   const nombre=document.getElementById('f-nombre').value.trim();
   const lugar =document.getElementById('f-lugar').value.trim();
   const tel   =document.getElementById('f-tel').value.trim();
+  const latVal = parseFloat(document.getElementById('f-lat').value);
+  const lngVal = parseFloat(document.getElementById('f-lng').value);
+  
   if(!nombre||!lugar||!tel){msgEl('desap-msg','Completa los campos obligatorios (*)','var(--red)');return;}
+  if(isNaN(latVal) || isNaN(lngVal)){msgEl('desap-msg','Selecciona la ubicación exacta en el mapa','var(--red)');return;}
+  
   const estado=document.getElementById('f-estado').value;
-  const c=coord(estado);
-  const {error}=await sb.from('desaparecidos').insert({
+  const payload = {
     nombre,lugar,estado,
     edad:parseInt(document.getElementById('f-edad').value)||null,
     telefono:tel,
     descripcion:document.getElementById('f-desc').value,
     notas:document.getElementById('f-notas').value,
-    lat:c.lat,lng:c.lng,status:'buscado'
-  });
-  if(error){msgEl('desap-msg','Error: '+error.message,'var(--red)');return;}
+    lat:latVal,
+    lng:lngVal,
+    status:'buscado',
+    foto:formPhotos.f
+  };
+  
+  const {error}=await sb.from('desaparecidos').insert(payload);
+  
+  if(error){
+    if (error.message && error.message.includes('column "foto" does not exist')) {
+      delete payload.foto;
+      if (formPhotos.f) {
+        payload.notas = (payload.notas ? payload.notas + '\n\n' : '') + '[Imagen guardada localmente]';
+      }
+      const retry = await sb.from('desaparecidos').insert(payload);
+      if (retry.error) {
+        msgEl('desap-msg','Error: '+retry.error.message,'var(--red)');
+        return;
+      }
+    } else {
+      msgEl('desap-msg','Error: '+error.message,'var(--red)');
+      return;
+    }
+  }
+  
   ['f-nombre','f-edad','f-lugar','f-tel','f-desc','f-notas'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-estado').value='';
-  msgEl('desap-msg','✅ Reporte publicado. Que lo encuentren pronto.','var(--green)');
+  clearPhoto('f');
+  msgEl('desap-msg','✅ Reporte publicado exitosamente.','var(--green)');
   cargarDesap(); dashboard();
 }
 
@@ -1047,13 +1780,35 @@ async function encontrado(id){
 }
 
 function updateDesapMap(data){
-  if(!mapDes)return;
-  mapDes.eachLayer(l=>{if(l._vk)mapDes.removeLayer(l)});
+  if(!mapDes || !clusterDesap)return;
+  clusterDesap.clearLayers();
+  
   data.forEach(d=>{
     if(!d.lat||!d.lng)return;
-    const m=L.circleMarker([d.lat,d.lng],{radius:9,fillColor:d.status==='encontrado'?'#22c55e':'#ff3b3b',color:'#fff',weight:2,fillOpacity:.9});
-    m._vk=true;
-    m.bindPopup(`<strong>${d.nombre}</strong><br>${d.lugar}<br>☎️ ${d.telefono}<br><em>${d.status==='encontrado'?'✅ Encontrado':'🔴 Buscado'}</em>`).addTo(mapDes);
+    const isCritical = d.edad !== null && (d.edad <= 12 || d.edad >= 70) || (d.notas && /diabetes|hiperten|asma|cardiac|medic/i.test(d.notas));
+    const m = L.circleMarker([d.lat,d.lng],{
+      radius: isCritical ? 11 : 9,
+      fillColor: d.status==='encontrado'?'#22c55e':'#ff3b3b',
+      color: isCritical ? '#ffd700' : '#fff',
+      weight: isCritical ? 3 : 2,
+      fillOpacity:.9
+    });
+    
+    m._reportId = d.id;
+    m.bindPopup(`
+      <div style="min-width: 180px">
+        <strong style="font-size:14px">${d.nombre}</strong>${d.edad ? ` (${d.edad} años)` : ''}<br>
+        📍 ${d.lugar}<br>
+        ☎️ ${d.telefono}<br>
+        <em>${d.status==='encontrado'?'✅ Encontrado':'🔴 Buscado'}</em>
+        ${d.foto ? `<img src="${d.foto}" style="width:100%; max-height:100px; object-fit:cover; border-radius:4px; margin-top:6px" onclick="viewFullPhoto('${d.foto}')">` : ''}
+        <div style="display:flex; gap:4px; margin-top:8px">
+          <a href="https://www.google.com/maps/search/?api=1&query=${d.lat},${d.lng}" target="_blank" style="padding:4px 6px; font-size:10px; background:var(--glass-bg2); border:1px solid var(--glass-border); border-radius:4px; color:#fff; text-decoration:none; text-align:center; flex:1">🗺️ Google</a>
+          <a href="https://waze.com/ul?ll=${d.lat},${d.lng}&navigate=yes" target="_blank" style="padding:4px 6px; font-size:10px; background:var(--glass-bg2); border:1px solid var(--glass-border); border-radius:4px; color:#fff; text-decoration:none; text-align:center; flex:1">🧭 Waze</a>
+        </div>
+      </div>
+    `);
+    clusterDesap.addLayer(m);
   });
 }
 
@@ -1061,11 +1816,19 @@ function initDesap(){
   if(mapDesInit)return; mapDesInit=true;
   mapDes=L.map('map-desap').setView([10.48,-67.2],7);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© CARTO',maxZoom:18}).addTo(mapDes);
+  
+  clusterDesap = L.markerClusterGroup({
+    chunkedLoading: true,
+    disableClusteringAtZoom: 15
+  });
+  mapDes.addLayer(clusterDesap);
+  
+  initFormMap('f', 'var(--red)');
   cargarDesap();
 }
 
 // ══════════════════════════════
-// RÉPLICAS USGS — MEJORADO
+// RÉPLICAS USGS
 // ══════════════════════════════
 let mapRep=null, repInit=false;
 let allQuakes=[], repMarkers=[], repFilterMin=0;
@@ -1075,7 +1838,6 @@ function magRadius(m){ return Math.max(6, m * 4.5); }
 
 async function loadReplicas(){
   try{
-    // Últimos 7 días, Venezuela y alrededores
     const now = Date.now();
     const start = new Date(now - 7*24*3600*1000).toISOString().split('T')[0];
     const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start}&minlatitude=4&maxlatitude=14&minlongitude=-75&maxlongitude=-58&minmagnitude=1.5&orderby=time&limit=100`;
@@ -1133,7 +1895,6 @@ function renderRepList(){
 
 function renderRepMap(){
   if(!mapRep) return;
-  // Limpiar markers anteriores
   repMarkers.forEach(m=>mapRep.removeLayer(m));
   repMarkers=[];
 
@@ -1189,50 +1950,178 @@ function initReplicas(){
 // DAÑOS ESTRUCTURALES
 // ══════════════════════════════
 let mapDan=null, danoInit=false;
+let clusterDanos=null;
 
 async function cargarDanos(){
   const el=document.getElementById('lista-danos');
   const {data,error}=await sb.from('daños_estructurales').select('*').order('created_at',{ascending:false});
   if(error||!data){el.innerHTML='<div class="empty">Error cargando reportes</div>';return;}
-  if(!data.length){el.innerHTML='<div class="empty">Sé el primero en reportar daños en tu zona</div>';return;}
+  danosData = data;
+  filtrarDanos();
+}
+
+function filtrarDanos() {
+  const el = document.getElementById('lista-danos');
+  const query = document.getElementById('buscar-d').value.trim().toLowerCase();
+  
+  const estadoFilter = document.getElementById('filtro-d-estado').value;
+  const nivelFilter = document.getElementById('filtro-d-nivel').value;
+  const atrapadosFilter = document.getElementById('filtro-d-atrapados').value;
+  const fechaFilter = document.getElementById('filtro-d-fecha').value;
+  const radioFilter = document.getElementById('filtro-d-radio').value;
+  
+  let filtered = danosData.filter(d => {
+    const matchText = !query || 
+      d.ubicacion.toLowerCase().includes(query) || 
+      (d.descripcion && d.descripcion.toLowerCase().includes(query)) ||
+      (d.tipo && d.tipo.toLowerCase().includes(query));
+      
+    const matchEstado = !estadoFilter || d.estado === estadoFilter;
+    const matchNivel = !nivelFilter || d.nivel === nivelFilter;
+    const matchAtrapados = !atrapadosFilter || d.atrapados === atrapadosFilter;
+    
+    let matchFecha = true;
+    if (fechaFilter && d.created_at) {
+      const ms = Date.now() - new Date(d.created_at).getTime();
+      if (fechaFilter === 'hoy') matchFecha = ms <= 24*3600*1000;
+      else if (fechaFilter === '3dias') matchFecha = ms <= 3*24*3600*1000;
+      else if (fechaFilter === 'semana') matchFecha = ms <= 7*24*3600*1000;
+    }
+    
+    let matchRadio = true;
+    if (radioFilter && userCoords && d.lat && d.lng) {
+      const dist = getDistance(userCoords.lat, userCoords.lng, d.lat, d.lng);
+      matchRadio = dist <= parseFloat(radioFilter);
+    }
+    
+    return matchText && matchEstado && matchNivel && matchAtrapados && matchFecha && matchRadio;
+  });
+
+  // Ordenar priorizando incidentes críticos (atrapados o colapso)
+  filtered.sort((a, b) => {
+    const aCritical = a.atrapados === 'si' || a.nivel === 'total' || a.nivel === 'grave';
+    const bCritical = b.atrapados === 'si' || b.nivel === 'total' || b.nivel === 'grave';
+    if (aCritical && !bCritical) return -1;
+    if (!aCritical && bCritical) return 1;
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
+
+  if(!filtered.length){el.innerHTML='<div class="empty">Sin reportes registrados</div>';return;}
+  
   const NL={leve:'LEVE',moderado:'MODERADO',grave:'GRAVE',total:'COLAPSO'};
-  el.innerHTML=data.map(d=>`
-    <div class="damage-item" style="border-color:${nivelColor(d.nivel)}40">
+  el.innerHTML=filtered.map(d=>{
+    const isCritical = d.atrapados === 'si' || d.nivel === 'total' || d.nivel === 'grave';
+    return `
+    <div class="damage-item ${isCritical ? 'priority-critical' : ''}" style="border-color:${nivelColor(d.nivel)}40" id="danos-item-${d.id}">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:10px">
-        <span style="font-weight:500;font-size:13px">📍 ${d.ubicacion}</span>
+        <span style="font-weight:600;font-size:14px">📍 ${d.ubicacion}</span>
         <span style="background:${nivelColor(d.nivel)}18;border:1px solid ${nivelColor(d.nivel)}40;color:${nivelColor(d.nivel)};font-family:'Share Tech Mono',monospace;font-size:10px;padding:2px 8px;border-radius:5px;white-space:nowrap">${NL[d.nivel]||d.nivel}</span>
       </div>
-      <div style="font-size:12px;color:var(--text-sub)">${d.descripcion||''}</div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:5px;font-family:'Share Tech Mono',monospace">${d.tipo||''} · ${d.estado||''}${d.atrapados==='si'?' · <span style="color:var(--red);font-weight:700">⚠️ PERSONAS ATRAPADAS</span>':''}</div>
-    </div>`).join('');
-  if(mapDan){
-    mapDan.eachLayer(l=>{if(l._vk)mapDan.removeLayer(l)});
-    data.forEach(d=>{
-      if(!d.lat||!d.lng)return;
-      const m=L.circleMarker([d.lat,d.lng],{radius:9,fillColor:nivelColor(d.nivel),color:'#fff',weight:2,fillOpacity:.85});
-      m._vk=true;
-      m.bindPopup(`<strong>${d.ubicacion}</strong><br>${d.descripcion||''}${d.atrapados==='si'?'<br><strong style="color:red">⚠️ PERSONAS ATRAPADAS</strong>':''}`).addTo(mapDan);
+      <div style="font-size:13px;color:var(--text-sub)">${d.descripcion||''}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:6px;font-family:'Share Tech Mono',monospace;display:flex;flex-wrap:wrap;gap:8px">
+        <span>🏗️ ${d.tipo||''}</span>
+        <span>🌍 ${d.estado||''}</span>
+        ${d.telefono ? `<span>☎️ ${d.telefono}</span>` : ''}
+        ${d.atrapados==='si'?'<span style="color:var(--red);font-weight:700">🚨 PERSONAS ATRAPADAS</span>':''}
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px">ID: REF-D${d.id} · ${fmtTime(d.created_at)}</div>
+      
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px">
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:4px 8px" onclick="shareReport('danos', ${d.id}, event)">🔗 Compartir</button>
+          ${d.lat && d.lng ? `
+            <a href="https://www.google.com/maps/search/?api=1&query=${d.lat},${d.lng}" target="_blank" class="btn btn-ghost btn-sm" style="font-size:10px;padding:4px 8px">🗺️ Google</a>
+            <a href="https://waze.com/ul?ll=${d.lat},${d.lng}&navigate=yes" target="_blank" class="btn btn-ghost btn-sm" style="font-size:10px;padding:4px 8px">🧭 Waze</a>
+          ` : ''}
+        </div>
+        
+        ${d.foto ? `
+          <div class="li-photo-wrapper" style="margin-top:0" onclick="viewFullPhoto('${d.foto}')">
+            <img src="${d.foto}" class="li-photo">
+          </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  
+  updateDanosMap(filtered);
+}
+
+function updateDanosMap(data) {
+  if(!mapDan || !clusterDanos)return;
+  clusterDanos.clearLayers();
+  
+  data.forEach(d=>{
+    if(!d.lat||!d.lng)return;
+    const isCritical = d.atrapados === 'si' || d.nivel === 'total' || d.nivel === 'grave';
+    const m=L.circleMarker([d.lat,d.lng],{
+      radius: isCritical ? 11 : 9,
+      fillColor:nivelColor(d.nivel),
+      color: isCritical ? '#ffd700' : '#fff',
+      weight: isCritical ? 3 : 2,
+      fillOpacity:.85
     });
-  }
+    
+    m._reportId = d.id;
+    m.bindPopup(`
+      <div style="min-width:180px">
+        <strong>${d.ubicacion}</strong><br>
+        <em>Gravedad: ${d.nivel ? d.nivel.toUpperCase() : ''}</em><br>
+        ${d.descripcion||''}<br>
+        ${d.atrapados==='si'?'<strong style="color:red">🚨 PERSONAS ATRAPADAS</strong>':''}
+        ${d.foto ? `<img src="${d.foto}" style="width:100%; max-height:100px; object-fit:cover; border-radius:4px; margin-top:6px" onclick="viewFullPhoto('${d.foto}')">` : ''}
+        <div style="display:flex; gap:4px; margin-top:8px">
+          <a href="https://www.google.com/maps/search/?api=1&query=${d.lat},${d.lng}" target="_blank" style="padding:4px 6px; font-size:10px; background:var(--glass-bg2); border:1px solid var(--glass-border); border-radius:4px; color:#fff; text-decoration:none; text-align:center; flex:1">🗺️ Google</a>
+          <a href="https://waze.com/ul?ll=${d.lat},${d.lng}&navigate=yes" target="_blank" style="padding:4px 6px; font-size:10px; background:var(--glass-bg2); border:1px solid var(--glass-border); border-radius:4px; color:#fff; text-decoration:none; text-align:center; flex:1">🧭 Waze</a>
+        </div>
+      </div>
+    `);
+    clusterDanos.addLayer(m);
+  });
 }
 
 async function reportarDano(){
   const ubi=document.getElementById('d-ubi').value.trim();
+  const latVal = parseFloat(document.getElementById('d-lat').value);
+  const lngVal = parseFloat(document.getElementById('d-lng').value);
+  
   if(!ubi){msgEl('dano-msg','Ingresa la ubicación del daño','var(--red)');return;}
+  if(isNaN(latVal) || isNaN(lngVal)){msgEl('dano-msg','Selecciona la ubicación exacta en el mapa','var(--red)');return;}
+  
   const estado=document.getElementById('d-estado').value;
-  const c=coord(estado);
-  const {error}=await sb.from('daños_estructurales').insert({
+  const payload = {
     ubicacion:ubi, estado,
     nivel:document.getElementById('d-nivel').value,
     tipo:document.getElementById('d-tipo').value,
     descripcion:document.getElementById('d-desc').value,
     atrapados:document.getElementById('d-atrap').value,
     telefono:document.getElementById('d-tel').value,
-    lat:c.lat,lng:c.lng
-  });
-  if(error){msgEl('dano-msg','Error: '+error.message,'var(--red)');return;}
+    lat:latVal,
+    lng:lngVal,
+    foto:formPhotos.d
+  };
+  
+  const {error}=await sb.from('daños_estructurales').insert(payload);
+  
+  if(error){
+    if (error.message && error.message.includes('column "foto" does not exist')) {
+      delete payload.foto;
+      if (formPhotos.d) {
+        payload.descripcion = (payload.descripcion ? payload.descripcion + '\n\n' : '') + '[Imagen guardada localmente]';
+      }
+      const retry = await sb.from('daños_estructurales').insert(payload);
+      if (retry.error) {
+        msgEl('dano-msg','Error: '+retry.error.message,'var(--red)');
+        return;
+      }
+    } else {
+      msgEl('dano-msg','Error: '+error.message,'var(--red)');
+      return;
+    }
+  }
+  
   ['d-ubi','d-desc','d-tel'].forEach(id=>document.getElementById(id).value='');
-  msgEl('dano-msg','✅ Reporte registrado. Gracias por informar.','var(--green)');
+  clearPhoto('d');
+  msgEl('dano-msg','✅ Reporte registrado exitosamente.','var(--green)');
   cargarDanos(); dashboard();
 }
 
@@ -1240,50 +2129,192 @@ function initDanos(){
   if(danoInit)return; danoInit=true;
   mapDan=L.map('map-danos').setView([10.48,-66.90],7);
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© CARTO',maxZoom:18}).addTo(mapDan);
+  
+  clusterDanos = L.markerClusterGroup({
+    chunkedLoading: true,
+    disableClusteringAtZoom: 15
+  });
+  mapDan.addLayer(clusterDanos);
+  
+  initFormMap('d', 'var(--orange)');
   cargarDanos();
 }
 
 // ══════════════════════════════
 // ACOPIO
 // ══════════════════════════════
+let mapAcopio=null, acopioMapInit=false;
+let clusterAcopios=null;
+
 async function cargarAcopios(){
   const el=document.getElementById('lista-acopios');
   const {data,error}=await sb.from('centros_acopio').select('*').order('created_at',{ascending:false});
   if(error||!data){el.innerHTML='<div class="empty">Error cargando centros</div>';return;}
-  if(!data.length){el.innerHTML='<div class="empty">Registra el primer centro de acopio</div>';return;}
+  acopiosData = data;
+  filtrarYRenderizarAcopios();
+}
+
+function filtrarYRenderizarAcopios() {
+  const el = document.getElementById('lista-acopios');
+  const query = document.getElementById('buscar-ac').value.trim().toLowerCase();
+  
+  const estadoFilter = document.getElementById('filtro-ac-estado').value;
+  const statusFilter = document.getElementById('filtro-ac-status').value;
+  const necesidadFilter = document.getElementById('filtro-ac-necesidad').value;
+  const radioFilter = document.getElementById('filtro-ac-radio').value;
+  
+  let filtered = acopiosData.filter(a => {
+    const matchText = !query || 
+      a.nombre.toLowerCase().includes(query) || 
+      a.direccion.toLowerCase().includes(query);
+      
+    const matchEstado = !estadoFilter || a.estado === estadoFilter;
+    const matchStatus = !statusFilter || a.status === statusFilter;
+    
+    const matchNecesidad = !necesidadFilter || (a.necesidades && a.necesidades.includes(necesidadFilter));
+    
+    let matchRadio = true;
+    if (radioFilter && userCoords && a.lat && a.lng) {
+      const dist = getDistance(userCoords.lat, userCoords.lng, a.lat, a.lng);
+      matchRadio = dist <= parseFloat(radioFilter);
+    }
+    
+    return matchText && matchEstado && matchStatus && matchNecesidad && matchRadio;
+  });
+
+  if(!filtered.length){el.innerHTML='<div class="empty">Sin centros registrados con esos filtros</div>';return;}
+  
   const SC={activo:'chip-green',lleno:'chip-orange',bloqueado:'chip-red'};
   const SL={activo:'✅ ACTIVO',lleno:'⚠️ LLENO',bloqueado:'🚫 BLOQUEADO'};
   const BC={activo:'var(--gr-b)',lleno:'var(--or-b)',bloqueado:'var(--red-b)'};
-  el.innerHTML=data.map(a=>`
-    <div class="acopio-item" style="border-color:${BC[a.status]||'var(--gr-b)'}">
+  
+  el.innerHTML=filtered.map(a=>`
+    <div class="acopio-item" style="border-color:${BC[a.status]||'var(--gr-b)'}" id="acopio-item-${a.id}">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:10px">
-        <span style="font-weight:500;font-size:13px">📦 ${a.nombre}</span>
+        <span style="font-weight:600;font-size:14px">📦 ${a.nombre}</span>
         <span class="chip ${SC[a.status]||'chip-green'}">${SL[a.status]||a.status}</span>
       </div>
-      <div style="font-size:12px;color:var(--text-muted)">📍 ${a.direccion} · ${a.estado||''}</div>
-      <div style="font-size:12px;color:var(--text-muted);margin-top:3px">☎️ ${a.contacto||'Sin contacto'}</div>
+      <div style="font-size:13px;color:var(--text-muted)">📍 ${a.direccion} · ${a.estado||''}</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-top:4px">☎️ ${a.contacto||'Sin contacto'}</div>
       ${a.necesidades?.length?`<div style="margin-top:8px">${a.necesidades.map(n=>`<span class="need-tag">${n}</span>`).join('')}</div>`:''}
+      <div style="font-size:11px;color:var(--text-muted);margin-top:6px">ID: REF-C${a.id} · ${fmtTime(a.created_at)}</div>
+      
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px">
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:4px 8px" onclick="shareReport('acopio', ${a.id}, event)">🔗 Compartir</button>
+          ${a.lat && a.lng ? `
+            <a href="https://www.google.com/maps/search/?api=1&query=${a.lat},${a.lng}" target="_blank" class="btn btn-ghost btn-sm" style="font-size:10px;padding:4px 8px">🗺️ Google</a>
+            <a href="https://waze.com/ul?ll=${a.lat},${a.lng}&navigate=yes" target="_blank" class="btn btn-ghost btn-sm" style="font-size:10px;padding:4px 8px">🧭 Waze</a>
+          ` : ''}
+        </div>
+        
+        ${a.foto ? `
+          <div class="li-photo-wrapper" style="margin-top:0" onclick="viewFullPhoto('${a.foto}')">
+            <img src="${a.foto}" class="li-photo">
+          </div>` : ''}
+      </div>
     </div>`).join('');
+    
+  updateAcopioMap(filtered);
+}
+
+function updateAcopioMap(data) {
+  if(!mapAcopio || !clusterAcopios) return;
+  clusterAcopios.clearLayers();
+  
+  const statusColor = { activo: '#22c55e', lleno: '#ff8c42', bloqueado: '#ff3b3b' };
+  
+  data.forEach(a=>{
+    if(!a.lat||!a.lng) return;
+    const m=L.circleMarker([a.lat,a.lng],{
+      radius:9,
+      fillColor: statusColor[a.status] || '#22c55e',
+      color:'#fff',
+      weight:2,
+      fillOpacity:.9
+    });
+    
+    m._reportId = a.id;
+    m.bindPopup(`
+      <div style="min-width: 180px">
+        <strong>${a.nombre}</strong><br>
+        📍 ${a.direccion}<br>
+        ☎️ ${a.contacto||'Sin contacto'}<br>
+        Estatus: <em>${a.status.toUpperCase()}</em>
+        ${a.foto ? `<img src="${a.foto}" style="width:100%; max-height:100px; object-fit:cover; border-radius:4px; margin-top:6px" onclick="viewFullPhoto('${a.foto}')">` : ''}
+        <div style="display:flex; gap:4px; margin-top:8px">
+          <a href="https://www.google.com/maps/search/?api=1&query=${a.lat},${a.lng}" target="_blank" style="padding:4px 6px; font-size:10px; background:var(--glass-bg2); border:1px solid var(--glass-border); border-radius:4px; color:#fff; text-decoration:none; text-align:center; flex:1">🗺️ Google</a>
+          <a href="https://waze.com/ul?ll=${a.lat},${a.lng}&navigate=yes" target="_blank" style="padding:4px 6px; font-size:10px; background:var(--glass-bg2); border:1px solid var(--glass-border); border-radius:4px; color:#fff; text-decoration:none; text-align:center; flex:1">🧭 Waze</a>
+        </div>
+      </div>
+    `);
+    clusterAcopios.addLayer(m);
+  });
+}
+
+function filtrarAcopios() {
+  filtrarYRenderizarAcopios();
 }
 
 async function reportarAcopio(){
   const nom=document.getElementById('ac-nom').value.trim();
   const dir=document.getElementById('ac-dir').value.trim();
+  const latVal = parseFloat(document.getElementById('ac-lat').value);
+  const lngVal = parseFloat(document.getElementById('ac-lng').value);
+  
   if(!nom||!dir){msgEl('acopio-msg','Nombre y dirección son obligatorios','var(--red)');return;}
+  if(isNaN(latVal) || isNaN(lngVal)){msgEl('acopio-msg','Selecciona la ubicación exacta en el mapa','var(--red)');return;}
+  
   const necesidades=[...document.querySelectorAll('#necesidades input:checked')].map(i=>i.value);
   const estado=document.getElementById('ac-estado').value;
-  const c=coord(estado);
-  const {error}=await sb.from('centros_acopio').insert({
+  
+  const payload = {
     nombre:nom,direccion:dir,estado,
     status:document.getElementById('ac-status').value,
     necesidades,contacto:document.getElementById('ac-contacto').value,
-    lat:c.lat,lng:c.lng
-  });
-  if(error){msgEl('acopio-msg','Error: '+error.message,'var(--red)');return;}
+    lat:latVal,lng:lngVal,
+    foto:formPhotos.ac
+  };
+  
+  const {error}=await sb.from('centros_acopio').insert(payload);
+  
+  if(error){
+    if (error.message && error.message.includes('column "foto" does not exist')) {
+      delete payload.foto;
+      if (formPhotos.ac) {
+        payload.direccion = (payload.direccion ? payload.direccion + '\n\n' : '') + '[Imagen guardada localmente]';
+      }
+      const retry = await sb.from('centros_acopio').insert(payload);
+      if (retry.error) {
+        msgEl('acopio-msg','Error: '+retry.error.message,'var(--red)');
+        return;
+      }
+    } else {
+      msgEl('acopio-msg','Error: '+error.message,'var(--red)');
+      return;
+    }
+  }
+  
   ['ac-nom','ac-dir','ac-contacto'].forEach(id=>document.getElementById(id).value='');
   document.querySelectorAll('#necesidades input').forEach(i=>i.checked=false);
-  msgEl('acopio-msg','✅ Centro registrado. La comunidad lo agradece.','var(--green)');
+  clearPhoto('ac');
+  msgEl('acopio-msg','✅ Centro de acopio registrado.','var(--green)');
   cargarAcopios(); dashboard();
+}
+
+function initAcopioMap() {
+  if (acopioMapInit) return; acopioMapInit = true;
+  mapAcopio = L.map('map-acopio').setView([10.48,-66.90], 7);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© CARTO',maxZoom:18}).addTo(mapAcopio);
+  
+  clusterAcopios = L.markerClusterGroup({
+    chunkedLoading: true,
+    disableClusteringAtZoom: 15
+  });
+  mapAcopio.addLayer(clusterAcopios);
+  
+  initFormMap('ac', 'var(--green)');
+  cargarAcopios();
 }
 
 // ══════════════════════════════
@@ -1312,11 +2343,11 @@ async function enviarChat(){
       body:JSON.stringify({messages:chatHist.slice(-12)})
     });
     const data=await res.json();
-    const reply=data.content||'Error. Si es emergencia llama al 911.';
+    const reply=data.content||'Error de servidor. Si es una emergencia, llama al 911.';
     typing.remove(); addMsg(reply,'ai');
     chatHist.push({role:'assistant',content:reply});
   }catch(e){
-    typing.remove(); addMsg('Error de conexión. Si es emergencia: llama al 911 ya.','ai');
+    typing.remove(); addMsg('Error de conexión local. Si es una emergencia: llama al 911 de inmediato.','ai');
   }
 }
 function addMsg(txt,role,temp=false){
@@ -1346,19 +2377,27 @@ if('serviceWorker' in navigator){
 // ══════════════════════════════
 dashboard();
 initDesap();
-cargarAcopios();
-setInterval(dashboard,30000);
+initDanos();
+initAcopioMap();
 
-// Restaurar tab guardado en sessionStorage
+// Actualización automática de datos cada 20 segundos para alta disponibilidad
+setInterval(dashboard, 20000);
+setInterval(cargarDesap, 25000);
+setInterval(cargarDanos, 25000);
+setInterval(cargarAcopios, 25000);
+
 const savedTab = sessionStorage.getItem('tab') || 'inicio';
 if(savedTab && savedTab !== 'inicio'){
   go(savedTab, null, false);
 } else {
-  // Asegurar que inicio esté activo con su nav-tab
   document.querySelectorAll('.nav-tab').forEach(t=>{
     t.classList.toggle('active', t.getAttribute('onclick')?.includes("'inicio'"));
   });
 }
+
+// Escucha enlaces de compartido
+window.addEventListener('load', handleSharingLink);
+window.addEventListener('hashchange', handleSharingLink);
 </script>
 </body>
 </html>
