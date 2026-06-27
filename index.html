@@ -247,7 +247,37 @@ main{padding-top:60px;position:relative;z-index:1;min-height:100vh}
       <div class="stat"><div class="stat-val">920+</div><div class="stat-lbl">Fallecidos</div></div>
       <div class="stat"><div class="stat-val">4.300+</div><div class="stat-lbl">Heridos</div></div>
       <div class="stat"><div class="stat-val">6.7M</div><div class="stat-lbl">Afectados</div></div>
-      <div class="stat"><div class="stat-val" id="stat-desap">—</div><div class="stat-lbl">Buscados</div></div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD COUNTERS — datos reales de Supabase -->
+  <div class="grid-3" style="margin-bottom:20px">
+    <div class="card" style="border-color:var(--red-border);cursor:pointer" onclick="showPage('desaparecidos')">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:24px">👤</span>
+        <span class="card-badge badge-red">EN VIVO</span>
+      </div>
+      <div id="dash-desap" style="font-family:'Share Tech Mono',monospace;font-size:36px;font-weight:700;color:var(--red)">—</div>
+      <div style="font-size:11px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-top:4px">Personas buscadas</div>
+      <div id="dash-encontrados" style="font-size:11px;color:var(--green);margin-top:6px">— encontradas</div>
+    </div>
+    <div class="card" style="border-color:rgba(255,140,66,0.3);cursor:pointer" onclick="showPage('daños')">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:24px">🏚️</span>
+        <span class="card-badge badge-orange">EN VIVO</span>
+      </div>
+      <div id="dash-daños" style="font-family:'Share Tech Mono',monospace;font-size:36px;font-weight:700;color:var(--orange)">—</div>
+      <div style="font-size:11px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-top:4px">Daños reportados</div>
+      <div id="dash-atrapados" style="font-size:11px;color:var(--red);margin-top:6px">— con personas atrapadas</div>
+    </div>
+    <div class="card" style="border-color:rgba(37,211,102,0.2);cursor:pointer" onclick="showPage('acopio')">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:24px">📦</span>
+        <span class="card-badge badge-green">EN VIVO</span>
+      </div>
+      <div id="dash-acopios" style="font-family:'Share Tech Mono',monospace;font-size:36px;font-weight:700;color:var(--green)">—</div>
+      <div style="font-size:11px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-top:4px">Centros de acopio activos</div>
+      <div id="dash-acopios-llenos" style="font-size:11px;color:var(--orange);margin-top:6px">— llenos o bloqueados</div>
     </div>
   </div>
 
@@ -918,11 +948,53 @@ function appendMsg(text,role,temp=false){
 function quickQ(q){ document.getElementById('chat-input').value=q; sendChat(); }
 
 // ══════════════════════════════════════
+// DASHBOARD — contadores reales Supabase
+// ══════════════════════════════════════
+async function cargarDashboard() {
+  try {
+    // Desaparecidos
+    const { data: desap } = await sb.from('desaparecidos').select('status');
+    if (desap) {
+      const buscados    = desap.filter(d => d.status === 'buscado').length;
+      const encontrados = desap.filter(d => d.status === 'encontrado').length;
+      document.getElementById('dash-desap').textContent      = buscados;
+      document.getElementById('dash-encontrados').textContent = `${encontrados} encontrada${encontrados !== 1 ? 's' : ''}`;
+      // También actualiza el stat-desap si existe en otras páginas
+      const sd = document.getElementById('stat-desap');
+      if (sd) sd.textContent = buscados;
+    }
+
+    // Daños estructurales
+    const { data: daños } = await sb.from('daños_estructurales').select('atrapados');
+    if (daños) {
+      const atrapados = daños.filter(d => d.atrapados === 'si').length;
+      document.getElementById('dash-daños').textContent     = daños.length;
+      document.getElementById('dash-atrapados').textContent = `${atrapados} con personas atrapadas`;
+    }
+
+    // Centros de acopio
+    const { data: acopios } = await sb.from('centros_acopio').select('status');
+    if (acopios) {
+      const activos  = acopios.filter(a => a.status === 'activo').length;
+      const inactivos = acopios.filter(a => a.status !== 'activo').length;
+      document.getElementById('dash-acopios').textContent        = activos;
+      document.getElementById('dash-acopios-llenos').textContent = `${inactivos} lleno${inactivos !== 1 ? 's' : ''} o bloqueado${inactivos !== 1 ? 's' : ''}`;
+    }
+  } catch(e) {
+    console.error('Dashboard error:', e);
+  }
+}
+
+// ══════════════════════════════════════
 // INIT
 // ══════════════════════════════════════
+cargarDashboard();
 initMapDesaparecidos();
 cargarAcopios();
 // Réplicas y Daños se cargan al hacer clic en el tab
+
+// Refresca el dashboard cada 30 segundos
+setInterval(cargarDashboard, 30000);
 
 // Responsive mobile menu
 if(window.innerWidth < 900) {
