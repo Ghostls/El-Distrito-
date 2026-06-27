@@ -301,17 +301,27 @@ main{padding-top:56px;position:relative;z-index:1;min-height:100vh;min-height:10
 .fg{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
 .fg label{font-size:10px;letter-spacing:0.1em;color:var(--text-muted);text-transform:uppercase;font-weight:500}
 .fg input,.fg textarea,.fg select{
-  background:rgba(255,255,255,0.05);
+  background:rgba(255,255,255,0.04);
   border:1px solid var(--glass-border);
   border-radius:var(--r-sm);
-  color:var(--text);font-family:'Inter',sans-serif;font-size:14px;
-  padding:10px 12px;outline:none;transition:border-color .2s, background .2s;width:100%;
-  min-height:var(--touch-min);box-sizing:border-box;
-  -webkit-appearance:none;appearance:none;
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  font-size:14px;
+  padding:10px 12px;
+  outline:none;
+  transition:border-color .2s, background .2s;
+  width:100%;
+  min-height:var(--touch-min);
+  box-sizing:border-box;
+  -webkit-appearance:none;
+  appearance:none;
 }
-.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--glass-border2);background:rgba(255,255,255,0.07)}
+.fg input:focus,.fg textarea:focus,.fg select:focus{
+  border-color:var(--glass-border2);
+  background:rgba(255,255,255,0.07);
+}
 .fg textarea{resize:vertical;min-height:80px;height:auto}
-.fg select option{background:#0d0d1a}
+.fg select option{background:#0d0d1a;color:var(--text)}
 
 /* Form Maps Selector — MÓVIL */
 .form-minimap-wrap {
@@ -387,6 +397,7 @@ main{padding-top:56px;position:relative;z-index:1;min-height:100vh;min-height:10
 
 /* ═══════════════════════════════════════════
    BUTTONS — OPTIMIZADOS PARA MÓVIL (TOUCH)
+   Y CON ESTÉTICA OSCURA / GLASSMORPHISM
 ═══════════════════════════════════════════ */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
@@ -403,13 +414,54 @@ main{padding-top:56px;position:relative;z-index:1;min-height:100vh;min-height:10
 .btn-green:active{background:#16a34a}
 .btn-orange{background:var(--orange);color:#000}
 .btn-orange:active{background:#f97316}
+
+/* Botón ghost (oscuro, glassmorphism) */
 .btn-ghost{
-  background:var(--glass-bg);border:1px solid var(--glass-border);
+  background:rgba(255,255,255,0.06);
+  border:1px solid var(--glass-border2);
   color:var(--text-sub);
 }
-.btn-ghost:active{background:var(--glass-bg2);color:var(--text);border-color:var(--glass-border2)}
+.btn-ghost:hover{
+  background:rgba(255,255,255,0.12);
+  color:var(--text);
+  border-color:var(--glass-border);
+}
+.btn-ghost:active{
+  background:rgba(255,255,255,0.18);
+  transform:scale(0.96);
+}
 .btn-full{width:100%}
 .btn-sm{padding:8px 12px;font-size:12px;min-height:36px}
+
+/* ═══════════════════════════════════════════
+   FILTERS — SELECTS OSCUROS
+═══════════════════════════════════════════ */
+.filter-row select{
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--glass-border);
+  border-radius:var(--r-sm);
+  color:var(--text-sub);
+  font-size:11px;
+  padding:8px 10px;
+  min-height:36px;
+  flex:1;
+  min-width:80px;
+  -webkit-appearance:none;
+  appearance:none;
+  background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239a9ab0'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 10px center;
+  background-size:10px 6px;
+  padding-right:28px;
+}
+.filter-row select:focus{
+  border-color:var(--glass-border2);
+  background-color:rgba(255,255,255,0.07);
+}
+.filter-row select option{
+  background:#0d0d1a;
+  color:var(--text);
+}
 
 /* ═══════════════════════════════════════════
    LISTS — OPTIMIZADAS PARA MÓVIL
@@ -571,7 +623,7 @@ main{padding-top:56px;position:relative;z-index:1;min-height:100vh;min-height:10
   border-top:1px solid var(--glass-border);
 }
 .chat-input input{
-  flex:1;background:rgba(255,255,255,0.05);
+  flex:1;background:rgba(255,255,255,0.04);
   border:1px solid var(--glass-border);border-radius:var(--r-sm);
   color:var(--text);font-size:14px;padding:10px 12px;outline:none;
   min-height:var(--touch-min);
@@ -602,7 +654,11 @@ main{padding-top:56px;position:relative;z-index:1;min-height:100vh;min-height:10
 @keyframes rot{to{transform:rotate(360deg)}}
 .empty{text-align:center;padding:24px;color:var(--text-muted);font-size:13px}
 .sbar{display:flex;gap:6px;margin-bottom:8px}
-.sbar input{flex:1;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:var(--r-sm);color:var(--text);font-size:14px;outline:none;min-height:var(--touch-min)}
+.sbar input{
+  flex:1;padding:10px 12px;background:rgba(255,255,255,0.04);
+  border:1px solid var(--glass-border);border-radius:var(--r-sm);
+  color:var(--text);font-size:14px;outline:none;min-height:var(--touch-min);
+}
 .sbar input:focus{border-color:var(--glass-border2)}
 .filter-row {
   display: flex;
@@ -611,20 +667,7 @@ main{padding-top:56px;position:relative;z-index:1;min-height:100vh;min-height:10
   margin-bottom:10px;
   flex-wrap:wrap;
 }
-.filter-row select {
-  background:rgba(255,255,255,0.05);
-  border:1px solid var(--glass-border);
-  border-radius:var(--r-sm);
-  color:var(--text);
-  font-size:11px;
-  padding:8px 10px;
-  min-height:36px;
-  flex:1;
-  min-width:80px;
-  -webkit-appearance:none;
-  appearance:none;
-}
-.filter-row select:focus{border-color:var(--glass-border2)}
+/* Los selects ya están definidos arriba en la sección FILTERS */
 .check-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-sub);cursor:pointer;user-select:none}
 .check-item input{accent-color:var(--green);width:16px;height:16px;cursor:pointer}
 
@@ -920,7 +963,7 @@ main{padding-top:56px;position:relative;z-index:1;min-height:100vh;min-height:10
     <div class="card">
       <div class="card-head"><span class="card-label">🔍 Buscar persona</span><span class="chip chip-blue">BASE DE DATOS</span></div>
       <div class="sbar">
-        <input style="flex:1;padding:9px 13px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:var(--r-sm);color:var(--text);font-size:13.5px;outline:none"
+        <input style="flex:1;padding:9px 13px;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:var(--r-sm);color:var(--text);font-size:13.5px;outline:none"
           id="buscar" placeholder="Nombre, lugar, descripción..." oninput="buscarDesap()">
         <button class="btn btn-ghost btn-sm" onclick="buscarDesap()">Buscar</button>
       </div>
@@ -1044,7 +1087,7 @@ main{padding-top:56px;position:relative;z-index:1;min-height:100vh;min-height:10
     <div class="card">
       <div class="card-head"><span class="card-label">📋 Reportes registrados</span><span class="chip chip-orange">COMUNIDAD</span></div>
       <div class="sbar">
-        <input style="flex:1;padding:9px 13px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:var(--r-sm);color:var(--text);font-size:13.5px;outline:none"
+        <input style="flex:1;padding:9px 13px;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:var(--r-sm);color:var(--text);font-size:13.5px;outline:none"
           id="buscar-d" placeholder="Buscar daños, dirección..." oninput="filtrarDanos()">
       </div>
       <!-- Filters for Daños -->
@@ -1124,7 +1167,7 @@ main{padding-top:56px;position:relative;z-index:1;min-height:100vh;min-height:10
     <div class="card">
       <div class="card-head"><span class="card-label">📋 Centros registrados</span><span class="chip chip-green">COMUNIDAD</span></div>
       <div class="sbar">
-        <input style="flex:1;padding:9px 13px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:var(--r-sm);color:var(--text);font-size:13.5px;outline:none"
+        <input style="flex:1;padding:9px 13px;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:var(--r-sm);color:var(--text);font-size:13.5px;outline:none"
           id="buscar-ac" placeholder="Buscar centros por nombre..." oninput="filtrarAcopios()">
       </div>
       <!-- Filters for Acopio -->
@@ -1819,12 +1862,10 @@ async function reportarDesap(){
     status:'buscado'
   };
   
-  // Solo agregar foto si existe
   if (formPhotos.f) payload.foto = formPhotos.f;
   
   let {error} = await sb.from('desaparecidos').insert(payload);
   
-  // Si falla por la columna foto, reintentar sin foto
   if (error && error.message && error.message.includes('foto')) {
     delete payload.foto;
     const retry = await sb.from('desaparecidos').insert(payload);
