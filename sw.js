@@ -1,4 +1,4 @@
-const CACHE = 'eldistrito-v2';
+const CACHE = 'eldistrito-v3';
 
 const PRECACHE = [
   '/',
